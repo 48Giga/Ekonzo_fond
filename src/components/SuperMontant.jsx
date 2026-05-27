@@ -1,66 +1,98 @@
-import React, {useEffect, useState} from "react";
-import {getSuperMontant} from "../service";
-import {Card} from "./Hero";
-
+import React, { useEffect, useState } from "react";
+import { getSuperMontant } from "../service";
+import { Card } from "./Hero";
 
 const number_format = new Intl.NumberFormat("fr-CD", {
-    style: "currency",
-    currency: "CDF",
-    minimumFractionDigits: 2,
-})
+  style: "currency",
+  currency: "CDF",
+  minimumFractionDigits: 2,
+});
 
 function SuperMontant() {
-    const [data, setData] = useState([])
-    const [nmbrItems, setNmbrItems] = useState(5)
-   
-    useEffect(() => {
-        getSuperMontant().then(setData)
-    }, [])
+  const [data, setData] = useState([]);
+  const [nmbrItems, setNmbrItems] = useState(5);
 
+  useEffect(() => {
+    getSuperMontant().then(setData);
+  }, []);
 
-    return (
-        <Card>
-            <div className="flex justify-between max-sm:grid max-sm:grid-cols-1 max-sm:gap-2 max-sm:py-2">
-                <h4 className="text-lg font-bold text-primary/60">
-                    Top 5 de supérieur montant
-                </h4>
-                <div className="">
-                    <input type="range"
-                           min={3} max={data.length}
-                           defaultValue={nmbrItems}
-                           onChange={e => setNmbrItems(e.target.value)}
-                           className="range range-sm range-primary print:hidden"
-                    />
+  return (
+    <Card>
+      <div className="grid gap-2 lg:flex  lg:justify-between">
+        <h4 className="lg:text-lg font-bold text-primary/60">
+          Top 5 de supérieur montant
+        </h4>
+        <div className="">
+          <input
+            type="range"
+            min={3}
+            max={data.length}
+            defaultValue={nmbrItems}
+            onChange={(e) => setNmbrItems(e.target.value)}
+            className="range range-sm range-primary print:hidden"
+          />
+        </div>
+      </div>
+
+      <div className="pt-2">
+        <h4 className="bg-primary py-4 text-lg font-bold text-primary-content ps-8 flex justify-between">
+            <span >Nom Post-nom</span>
+            <span className="px-6">Solde</span>
+        </h4>
+        <ul className="list bg-base-100 rounded-box shadow-md">
+          {data.length === 0 ? (
+            <span className="loading loading-spinner loading-lg"></span>
+          ) : (
+            data.slice(0, nmbrItems).map((d) => {
+                const avatar = d.Nom_client.charAt(0) + d.Post_Nom_client.charAt(0);
+                return (
+                    <li
+                key={d.id_client}
+                className="grid grid-cols-2 px-4 py-1 border-b-1 border-gray-200 even:bg-base-200 max-sm:px-1 max-sm:flex max-sm:justify-between"
+              >
+                <div className="flex gap-4">
+                  <div>
+                    <div className="avatar avatar-placeholder">
+                      <div className="w-10 bg-primary text-neutral-content rounded-full">
+                        <span className="font-bold uppercase">{avatar}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    
+                      <div className="text-primary uppercase font-semibold">
+                        {d.Code_client}
+                      </div>
+
+                      <div className="">
+                        <span className="text-xs text-primary uppercase trucante font-semibold opacity-60">
+                          {`${d.Nom_client} ${d.Post_Nom_client} `}
+                        </span>
+                        <span className="text-xs text-primary font-semibold opacity-60 max-sm:hidden">
+                          {d.Prenom_client}
+                        </span>
+                      </div>
+                    
+                  </div>
                 </div>
-            </div>
 
-            <div className="">
-                <table className="table w-full table-zebra max-2xl:table-lg">
-                    <thead>
-                    <tr className="text-lg text-neutral-content bg-primary">
-                        <td>Code</td>
-                        <td>Nom</td>
-                        <td className="text-end">Solde</td>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    { data.length === 0 ? (
-                        <span className="loading loading-spinner loading-lg"></span>
-                    ) :
-                        data.slice(0, nmbrItems)
-                        .map(s => (
-                            <tr key={s?.id_client}>
-                                <td className="uppercase max-lg:text-2xl">{s?.Code_client}</td>
-                                <td className="capitalize">{`${s?.Nom_client}  ${s?.Post_Nom_client}  ${s?.Prenom_client}`}</td>
-                                <td className="text-end font-[consolas] font-bold ">{number_format.format(s?.Solde_client)}</td>
-                            </tr>
-                        ))
-                    }
-                    </tbody>
-                </table>
-            </div>
-        </Card>
-    );
+                <div className="">
+                  <div className="text-center">
+                    {/* <div className="text-primary font-semibold">Solde</div> */}
+                    <div className="lg:text-lg text-end text-primary uppercase font-[consolas] font-semibold opacity-60 max-sm:-z-10">
+                      {number_format.format(d.Solde_client)}
+                    </div>
+                  </div>
+                </div>
+              </li>
+                )
+            })
+          )}
+        </ul>
+        
+      </div>
+    </Card>
+  );
 }
 
 export default SuperMontant;
