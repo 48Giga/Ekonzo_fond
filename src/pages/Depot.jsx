@@ -1,27 +1,23 @@
 import React, { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
-import { Link, useLoaderData } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Card } from "../components/Hero";
 import { ArrowDown, ArrowBigLeft, ChevronRight, ChevronLeft } from "lucide-react";
 import Utilisateur from "../components/Utilisateur";
-import { getNbrDepot } from "../service";
-import Pagination from "../components/Pagination";
+import { getDepots, getNbrDepot } from "../service";
+import { formatCurrent } from "../utils/helpers";
 
-const nmbr_format = new Intl.NumberFormat("fr-CD", {
-  style: "currency",
-  currency: "CDF",
-  minimumFractionDigits: 2,
-});
 
 const Depot = () => {
   const [nombreDepot, setNombreDepot] = useState([]);
-  const depots = useLoaderData();
+  const [depots, setDepots] = useState([])
   const [recherche, setRecherche] = useState("");
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
-    getNbrDepot().then(setNombreDepot);
+    getNbrDepot().then(setNombreDepot)
+    getDepots().then(setDepots)
   }, []);
 
   const handleRecherche = (e) => {
@@ -64,13 +60,13 @@ const Depot = () => {
         </div>
       }
     >
-      <div className="max-w-2xl mx-auto m-4">
+      <div className="max-w-full mx-auto m-4">
         <Card>
           <div>
             <h4 className="text-xl font-medium py-2 px-4">Liste de dépôts</h4>
           </div>
           <div className="px-6 pb-4">
-            <ul className="list bg-base-100 rounded-box shadow-md">
+            <ul className="list bg-base-100 rounded-box xl:min-w-lvh shadow-md">
               <input
                 type="range"
                 defaultValue={itemsPerPage}
@@ -141,7 +137,7 @@ const Depot = () => {
                             Montant
                           </div>
                           <div className="text-xs text-primary uppercase font-semibold opacity-60 max-sm:-z-10">
-                            {nmbr_format.format(d.Montant)}
+                            {formatCurrent(d.Montant)}
                           </div>
                         </div>
 

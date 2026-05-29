@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { getSuperMontant } from "../service";
 import { Card } from "./Hero";
+import { formatCurrent } from "../utils/helpers";
 
-const number_format = new Intl.NumberFormat("fr-CD", {
-  style: "currency",
-  currency: "CDF",
-  minimumFractionDigits: 2,
-});
+
 
 function SuperMontant() {
   const [data, setData] = useState([]);
@@ -19,7 +16,7 @@ function SuperMontant() {
   return (
     <Card>
       <div className="grid gap-2 lg:flex  lg:justify-between">
-        <h4 className="lg:text-lg font-bold text-primary/60">
+        <h4 className="lg:text-lg font-bold text-secondary/60">
           Top 5 de supérieur montant
         </h4>
         <div className="">
@@ -35,7 +32,7 @@ function SuperMontant() {
       </div>
 
       <div className="pt-2">
-        <h4 className="bg-primary py-4 text-lg font-bold text-primary-content ps-8 flex justify-between">
+        <h4 className="bg-primary py-4 text-lg font-bold text-neutral-content ps-8 flex justify-between">
             <span >Nom Post-nom</span>
             <span className="px-6">Solde</span>
         </h4>
@@ -65,10 +62,10 @@ function SuperMontant() {
                       </div>
 
                       <div className="">
-                        <span className="text-xs text-primary uppercase trucante font-semibold opacity-60">
+                        <span className="text-xs text-secondary uppercase trucante font-semibold opacity-60">
                           {`${d.Nom_client} ${d.Post_Nom_client} `}
                         </span>
-                        <span className="text-xs text-primary font-semibold opacity-60 max-sm:hidden">
+                        <span className="text-xs text-secondary font-semibold opacity-60 max-sm:hidden">
                           {d.Prenom_client}
                         </span>
                       </div>
@@ -79,8 +76,8 @@ function SuperMontant() {
                 <div className="">
                   <div className="text-center">
                     {/* <div className="text-primary font-semibold">Solde</div> */}
-                    <div className="lg:text-lg text-end text-primary uppercase font-[consolas] font-semibold opacity-60 max-sm:-z-10">
-                      {number_format.format(d.Solde_client)}
+                    <div className="lg:text-lg text-end text-secondary uppercase font-[consolas] font-semibold opacity-60 max-sm:-z-10">
+                      {formatCurrent(d.Solde_client)}
                     </div>
                   </div>
                 </div>

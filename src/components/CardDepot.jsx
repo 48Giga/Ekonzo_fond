@@ -1,27 +1,17 @@
-import {useState, useEffect} from "react";
 import {Card, CorpsCard} from "./Hero";
 import {Link} from "react-router-dom";
-import {getScoresDepot, getScoresDepots} from "../service";
 import {Download} from "lucide-react";
+import { formatCurrent } from "../utils/helpers";
+import { useAppContext } from "../context";
 
-
-const nmbr_format = new Intl.NumberFormat("fr-CD", {
-    style: "currency",
-    currency: "CDF"
-});
 
 const CardDepot = () => {
-    const [depot, setDepot] = useState([]);
-    const [depots, setDepots] = useState([]);
-
-    useEffect(() => {
-        getScoresDepot().then(setDepot),
-        getScoresDepots().then(setDepots)
-    }, []);
-
+   
+    const {depotMensuel, depotJournaliere} = useAppContext()
+    
     const titre = "Dépot journalière";
-    const depot_J = nmbr_format.format(depot);
-    const depot_M = nmbr_format.format(depots);
+    const depot_J = formatCurrent(depotJournaliere);
+    const depot_M = formatCurrent(depotMensuel);
 
     return (
         <Card>
@@ -30,7 +20,7 @@ const CardDepot = () => {
                 title={<div className="pt-2"> {titre} </div>}
                 number={depot_J}
                 icon={
-                    <div className="btn btn-circle btn-ghost text-green-600 ">
+                    <div className="btn btn-circle btn-ghost text-primary ">
                         <Link to={"/liste_depots"}>
                             <Download className="size-7"/>
                         </Link>
@@ -42,7 +32,7 @@ const CardDepot = () => {
                 title={"Dépot mensuel"}
                 number={depot_M}
                 icon={
-                    <div className="btn btn-circle btn-ghost text-green-600 ">
+                    <div className="btn btn-circle btn-ghost text-primary ">
                         <Link to={"/liste_depots"}>
                             <Download className="size-7"/>
                         </Link>

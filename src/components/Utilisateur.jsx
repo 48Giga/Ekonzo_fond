@@ -13,7 +13,7 @@ const Utilisateur = () => {
             <div className="flex-1">
                 <div className="space-x-2 max-sm:grid max-sm:grid-cols-1">
                     <span className="text-white/85">{salutation}</span>
-                    <span className="text-lg text-white">{user?.name || 'Invité'}</span>
+                    <span className="text-lg capitalize text-white">{user?.name || 'Invité'}</span>
                 </div>
             </div>
             <div className="flex-none">
@@ -33,19 +33,16 @@ const Utilisateur = () => {
                     </div>
                     <ul
                         tabIndex={0}
-                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+                        className="menu menu-sm dropdown-content space-y-3 bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
                     >
                         <li>
-                            <Link to='/create' className="btn btn-primary text-white btn-sm justify-between">
-                                Ajouter client
-                                <span className="badge"><UserPlus2/></span>
+                            <Link to='/create' className="btn btn-primary justify-between">
+                                Administrateur
+                                <span className="badge"><UserPlus2 /></span>
                             </Link>
                         </li>
                         <li>
-                            <a>Settings</a>
-                        </li>
-                        <li>
-                            <button onClick={logout} className="btn btn-ghost btn-sm w-full text-left">
+                            <button onClick={logout} className="btn btn-outline btn-primary w-full text-left">
                                 Logout
                             </button>
                         </li>

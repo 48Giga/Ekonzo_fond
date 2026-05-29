@@ -3,20 +3,22 @@ import { Card } from "../components/Hero";
 import { Link, useLoaderData } from "react-router-dom";
 import { useState, useEffect} from "react";
 import { createClient, getClient, getNbrCarte } from "../service";
-import { ArrowBigLeft, ChevronLeft, ChevronRight, UserPlus2, Users, Users2 } from "lucide-react";
+import { ArrowBigDown, ArrowBigLeft, ArrowDown, ChevronLeft, ChevronRight, Download, Upload, UserPlus2, Users, Users2 } from "lucide-react";
 import Utilisateur from "../components/Utilisateur";
+import { formatCurrent } from "../utils/helpers";
+import confetti from 'canvas-confetti'
 
-const nmbr_format = new Intl.NumberFormat("fr-CD", {
-  style: "currency",
-  currency: "CDF",
-});
 
 const Client = () => {
   
   const [clients, setClients] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [nmbrItems, setNmbrItems] = useState(10);
-  const [search, setSearche] = useState("");  
+  const [search, setSearche] = useState(""); 
+  const [apercu, setApercu] = useState(null)
+  const [message, setMessage] = useState('')
+  const [erreur, setErreur] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const adresses = useLoaderData();
   const maxId = Number(adresses[0].adresse);
@@ -30,10 +32,6 @@ const Client = () => {
     code: maxId + 1,
   });
 
-  const [apercu, setApercu] = useState(null)
-  const [message, setMessage] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-
   const handlerSearche = (e) => {
     const value = e.target.value;
     value.length > 2 && setSearche(value);
@@ -46,28 +44,34 @@ const Client = () => {
     setCurrentPage(page)
   }
 
-  const handleApercu = e => {
+  const handleApercu = async (e) => {
     e.preventDefault();
-    setApercu(values)
+    await setApercu(values)
+    setErreur('')
     setMessage('')
     document.getElementById('modal_frm_create').close()
     document.getElementById('modal_apercu').showModal()
   }
 
-  const submitClient = () => {
+  const submitClient = async () => {
     setIsLoading(true)
     setMessage('')
 
-    createClient(values);
-    // console.log(values);
-    setTimeout( async () => await location.reload(), 2000);
+    const response = await createClient(values);
+    if (response?.success) {
+      setMessage(response?.message || 'Enregistrement réussie')
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
+    }
+    
+     setTimeout( async () => await location.reload(), 5000);
+    
   };
 
   const handleAnnuler = () => {
     setApercu(null)
     document.getElementById('frm_client').reset()
     document.getElementById('modal_apercu').close()
-    setMessage('Apercu annuler, désolé !!!')
+    setErreur('Apercu annuler, désolé !!!')
   }
 
   const [nbrCarte, setNbrCarte] = useState([]);
@@ -84,17 +88,28 @@ const Client = () => {
   return (
     <Navigation
       titre={
-        <Link to={"/"} className="flex gap-6 text-white items-center px-2">
+        <Link to={"/"} className="flex lg:gap-6 text-neutral-content sm:space-x-2 items-center px-2">
           <ArrowBigLeft />
 
-          <span className="flex items-center gap-2 text-2xl font-bold max-sm:text-xl">
-            <Users2 />
-            Clients
+          <span className="flex items-center max-sm:hidden gap-2 lg:text-2xl font-bold">
+            Tableau de bord du géstionnaire
           </span>
+          <span className="flex items-center xl:hidden gap-2 text-2xl font-bold">
+            Géstionnaire
+          </span>
+
         </Link>
       }
+      menu={
+        <div className="flex text-neutral-content font-bold gap-6">
+          <span className="flex flex-col items-center"> <Users/> Client</span>
+          <span className="flex flex-col items-center"> <Download/> Depot </span>
+          <span className="flex flex-col items-center"> <Upload/> Retrait</span>
+        </div>
+      }
+
       winget={
-        <div className="flex gap-4 items-center">
+        <div className="flex space-x-4 lg:gap-8 items-center">
           <span className="text-white">
             <label className="swap">
               <div className="indicator">
@@ -109,16 +124,8 @@ const Client = () => {
         </div>
       }
     >
-      <div className="toast toast-top toast-center z-10 ">
-          {message && (
-            <div className={`alert ${ message.includes('ok') ? 'alert-success' : 'alert-error'} `}>
-              <span className="text-white">
-                {message}
-              </span>
-          </div>
-          )}
-        </div>
-      <div className="max-w-2xl mx-auto m-4 print:w-full print:m-0">
+      
+      <div className="w-full m-4 print:w-full print:m-0">
         <Card>
           <div>
             <h4 className="text-xl font-medium py-2 px-4">
@@ -134,7 +141,7 @@ const Client = () => {
             </button>
           </div>
           <div className="px-6 pb-4">
-            <ul className="list bg-base-100 rounded-box shadow-md">
+            <ul className="list bg-base-100 xl:min-w-lvh rounded-box shadow-md">
              
               <div className="max-w-full mb-4 flex justify-between py-2 max-sm:grid print:hidden">
                 <div className="px-4">
@@ -181,7 +188,7 @@ const Client = () => {
                   return (
                     <li
                       key={d.id_client}
-                      className="grid grid-cols-2 px-4 py-1 border-b-1 border-gray-200 even:bg-base-200 max-sm:px-1 max-sm:flex max-sm:justify-between"
+                      className="grid grid-cols-2 px-4 py-1 border-b-1 w-full border-gray-200 even:bg-base-200 max-sm:px-1 max-sm:flex max-sm:justify-between"
                     >
                       <div className="flex gap-4">
                         <div>
@@ -200,10 +207,10 @@ const Client = () => {
                             </div>
 
                             <div className="">
-                              <span className="text-xs text-primary uppercase trucante font-semibold opacity-60">
+                              <span className="text-xs text-secondary uppercase trucante font-semibold opacity-60">
                                 {`${d.Nom_client} ${d.Post_Nom_client} `}
                               </span>
-                              <span className="text-xs text-primary font-semibold opacity-60 max-sm:hidden">
+                              <span className="text-xs text-secondary font-semibold opacity-60 max-sm:hidden">
                                 {d.Prenom_client}
                               </span>
                             </div>
@@ -214,8 +221,8 @@ const Client = () => {
                       <div className="flex gap-20 max-sm:justify-between max-sm:px-4 max-sm:gap-8">
                         <div className="text-center">
                           <div className="text-primary font-semibold">Mise</div>
-                          <div className="text-xs text-primary font-[consolas] uppercase font-semibold opacity-60">
-                            {nmbr_format.format(d.Mise_client)}
+                          <div className="text-xs text-secondary font-[consolas] uppercase font-semibold opacity-60">
+                            {formatCurrent(d.Mise_client)}
                           </div>
                         </div>
 
@@ -223,8 +230,8 @@ const Client = () => {
                           <div className="text-primary font-semibold">
                             Solde
                           </div>
-                          <div className="text-xs text-primary uppercase font-[consolas] font-semibold opacity-60 max-sm:-z-10">
-                            {nmbr_format.format(d.Solde_client)}
+                          <div className="text-xs text-secondary uppercase font-[consolas] font-semibold opacity-60 max-sm:-z-10">
+                            {formatCurrent(d.Solde_client)}
                           </div>
                         </div>
                       </div>
@@ -256,6 +263,7 @@ const Client = () => {
           </div>
         </Card>
       </div>
+
       <dialog id="modal_frm_create" className="modal">
         <div className="modal-box w-[400px]  max-sm:w-full">
           <h4 className="mb-4 text-center bg-primary text-neutral-content font-semibold text-lg py-2">
@@ -376,7 +384,7 @@ const Client = () => {
                 <div className="flex gap-4 items-center">
                   <h4>Mise : </h4>
                   <span className="text-xs font-bold text-primary capitalize opacity-80">
-                    {nmbr_format.format(apercu.mise)}
+                    {formatCurrent(apercu.mise)}
                   </span>
                 </div>
               </div>
@@ -404,6 +412,10 @@ const Client = () => {
           <button>close</button>
         </form>
       </dialog>
+
+      {erreur ? <div className="toast toast-middle toast-center"><div className="alert font-bold alert-error">{erreur}</div></div> : null}
+      {message ? <div className="toast toast-bottom toast-center"><div className="alert font-bold alert-success">{message}</div></div> : null}
+
     </Navigation>
   );
 };

@@ -1,9 +1,9 @@
 import React from "react";
-import icon from '../../public/favicon.ico'
+import icon from '../../public/favicons.png'
 
 function PiedPage() {
     return (
-        <div>
+        <div className="">
             <footer
                 className="footer sm:footer-horizontal bg-primary text-neutral-content items-center p-4 print:hidden">
                 <aside className="grid-flow-col items-center">

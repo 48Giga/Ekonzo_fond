@@ -9,12 +9,8 @@ import {
   Upload,
   UploadIcon,
 } from "lucide-react";
+import { formatCurrent } from "../utils/helpers";
 
-const nmbr_format = new Intl.NumberFormat("fr-CD", {
-  style: "currency",
-  currency: "CDF",
-  minimumFractionDigits: 2,
-});
 
 const Transaction = () => {
   const client = useLoaderData();
@@ -24,15 +20,15 @@ const Transaction = () => {
     parseFloat(client[0].Solde_client) / parseFloat(client[0].Mise_client);
   const prenom = client[0].Prenom_client.toLowerCase();
 
-  let longueurCode = client[0].Code_client.length;
-  const lastLetter = client[0].Code_client.at(-1); // output last lette
-  const firstLetter = client[0].Code_client.substring(0, 2); // output two first letter
-  const midwere = client[0].Code_client.substring(0, longueurCode - 1); // soustrer last letter
-  const midwerLetter = midwere.substring(2); //output midwere letter
-
-  const code = firstLetter + " - " + midwerLetter + " - " + lastLetter;
-
-  // const [checked, setChecked] = useState(true);
+const code = (() => {
+    const value = client.Code_client || ''
+    const longueurCode = value.length
+    const lastLetter = value.at(-1) || ''
+    const firstLetter = value.substring(0, 2)
+    const midwere = value.substring(0, Math.max(0, longueurCode - 1))
+    const midwerLetter = midwere.substring(2)
+    return `${firstLetter} - ${midwerLetter} - ${lastLetter}`
+  })()
 
   //  Checking solde retrait
   const insufisantFond = () => {
@@ -69,7 +65,7 @@ const Transaction = () => {
     if (val.target.value > total) {
       setMessage(`
                 Solde insuffisant, veuillez reduirer le montant. \nLe client doit retiré que :
-                ${nmbr_format.format(total)} 
+                ${formatCurrent(total)} 
                 `);
       document.getElementById("frm-retrait").reset();
       document.getElementById("modal_frm_retrait").close();
@@ -81,13 +77,13 @@ const Transaction = () => {
       val.target.value = 1;
     }
 
-    let total =
-      parseInt(client[0].Solde_client) - parseInt(client[0].Mise_client * 2);
+    let total = parseInt(client[0].Solde_client) - parseInt(client[0].Mise_client * 2);
     if (val.target.value > total) {
       setMessage(
         `Solde du client est insuffisant, veuillez reduirer le montant.\nLe client doit prêté que :
-                ${nmbr_format.format(total)} `
+          ${formatCurrent(total)} `
       );
+
       document.getElementById("frm-dette").reset();
       document.getElementById("modal_frm_dette").close();
     }
@@ -105,7 +101,7 @@ const Transaction = () => {
     clientId: client[0].id_client,
     commission: client[0].Mise_client,
     montant: 0,
-    date: "",
+    date: new Date().toISOString().split('T')[0]
   });
 
   //Proprieter de dette
@@ -214,14 +210,14 @@ const Transaction = () => {
             <div className="flex items-center gap-2">
               <h4 className="opacity-60">Mise :</h4>
               <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                {nmbr_format.format(client[0]?.Mise_client)}
+                {formatCurrent(client[0]?.Mise_client)}
               </h4>
             </div>
 
             <div className="flex items-center gap-2">
               <h4 className="opacity-60">Solde :</h4>
               <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                {nmbr_format.format(client[0]?.Solde_client)}
+                {formatCurrent(client[0]?.Solde_client)}
               </h4>
             </div>
             <hr />
@@ -270,7 +266,7 @@ const Transaction = () => {
                     })
                   }
                   className="input"
-                  placeholder="Date"
+                  value={retraitValues.date}
                   required
                 />
               </label>
@@ -321,7 +317,7 @@ const Transaction = () => {
       {/* Formulaire dette */}
 
       {/* toast */}
-      <div className="toast toast-top toast-center z-10 ">
+      <div className="toast toast-bottom toast-center -z-50">
         {message && (
           <div
             className={`alert ${
@@ -421,12 +417,12 @@ const Transaction = () => {
                 <span>Montant rétiré : </span>
               </div>
               <div className="stat-value text-center text-primary opacity-60">
-                {nmbr_format.format(apercu.montant)}
+                {formatCurrent(apercu.montant)}
               </div>
               <div className="stat-actions space-x-4">
                 <span className="opacity-40">Commission :</span>
                 <span className="font-semibold text-primary opacity-40">
-                  {nmbr_format.format(apercu.commission)}
+                  {formatCurrent(apercu.commission)}
                 </span>
               </div>
               <div className="stat-title space-x-4">

@@ -4,25 +4,27 @@ import { Link, useLoaderData, useNavigate } from 'react-router-dom'
 import { addDepot } from '../service'
 import Utilisateur from '../components/Utilisateur'
 import { ArrowBigLeft } from 'lucide-react'
+import { formatCurrent } from '../utils/helpers'
+import confetti from 'canvas-confetti'
 
-const nmbr_format = new Intl.NumberFormat('fr-CD', {
-  style: 'currency',
-  currency: 'CDF',
-  minimumFractionDigits: 2,
-})
 
 const Transaction = () => {
+
   const clientResponse = useLoaderData()
   const client = Array.isArray(clientResponse) ? clientResponse[0] : clientResponse
   const navigate = useNavigate()
 
+  const [apercu, setApercu] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState("")
+  const [erreur, setErreur] = useState("")
   const [depotValues, setDepotValues] = useState({
     idClient: client?.id_client || null,
     date: new Date().toISOString().split('T')[0],
     montant: 0,
   })
-  const [apercu, setApercu] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
+  
+  
 
   useEffect(() => {
     if (client?.id_client) {
@@ -59,9 +61,9 @@ const Transaction = () => {
     }
   }
 
-  const handleApercu = (e) => {
+  const handleApercu = async(e) => {
     e.preventDefault()
-    setApercu(depotValues)
+    await setApercu(depotValues)
     const modal = document.getElementById('modal_apercu_depot')
     modal?.showModal()
   }
@@ -72,12 +74,15 @@ const Transaction = () => {
       if (solde < mise * 31) {
         const response = await addDepot(depotValues)
         if (response?.success) {
-          navigate('/recu_depot')
+           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
+          setMessage(response?.message)
+
+         await navigate('/recu_depot')
         } else {
-          alert(response?.message || 'Erreur lors du dépôt.')
+          setErreur(response?.message || 'Erreur lors du dépôt.')
         }
       } else {
-        alert("Le client(e) atteint son plafond de dépôt. Qu'il (elle) commence une autre carte.")
+       setErreur("Le client(e) atteint son plafond de dépôt. Qu'il (elle) commence une autre carte.")
       }
     } finally {
       setIsLoading(false)
@@ -123,12 +128,12 @@ const Transaction = () => {
             </h4>
             <div className="grid justify-center">
               <h4 className="font-bold font-[consolas] text-primary stat-value">
-                {nmbr_format.format(client.Solde_client)}
+                {formatCurrent(client.Solde_client)}
               </h4>
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Mise :</h4>
                 <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                  {nmbr_format.format(client.Mise_client)}
+                  {formatCurrent(client.Mise_client)}
                 </h4>
               </div>
             </div>
@@ -140,7 +145,7 @@ const Transaction = () => {
                 type="date"
                 onChange={(e) => setDepotValues({ ...depotValues, date: e.target.value })}
                 className="input lg:w-[180px]"
-                placeholder="Date"
+                value={depotValues.date}
                 required
               />
               <div className="lg:join max-sm:space-y-2">
@@ -189,7 +194,7 @@ const Transaction = () => {
                 </div>
                 <hr className="opacity-20" />
                 <div className="text-primary text-center opacity-60 py-2 stat-value">
-                  {nmbr_format.format(apercu.montant)}
+                  {formatCurrent(apercu.montant)}
                 </div>
                 <div className="space-x-4 stat-title ">
                   <span>ID du client :</span>
@@ -212,6 +217,28 @@ const Transaction = () => {
           <button>Close</button>
         </form>
       </dialog>
+
+      <div className="toast toast-top toast-center z-10 ">
+        {message && (
+          <div
+            className={`alert alert-success`}
+          >
+            <span className="text-white">{message}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="toast toast-top toast-center z-10 ">
+        {erreur && (
+          <div
+            className={`alert alert-error`}
+          >
+            <span className="text-white">{erreur}</span>
+          </div>
+        )}
+      </div>
+
+
     </Navigation>
   )
 }

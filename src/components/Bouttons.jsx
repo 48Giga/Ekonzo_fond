@@ -5,11 +5,11 @@ import { Download, Upload } from "lucide-react";
 import { getClient } from "../service";
 
 function Bouttons() {
-  
+
   const [clients, setClients] = useState([])
   const [search, setSearche] = useState("");
 
-  useEffect(()=> {
+  useEffect(() => {
     getClient().then(setClients);
   }, [])
 
@@ -96,6 +96,8 @@ function Bouttons() {
           </button>
         </div>
       </section>
+
+
       <dialog id="liste_retrait" className="modal">
         <div className="modal-box w-[400px] bg-red-50 max-h-8/12">
           <input

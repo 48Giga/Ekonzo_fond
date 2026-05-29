@@ -1,30 +1,21 @@
-import {createContext, useContext, useMemo, useState} from 'react'
-import {getClient, getNbrDepot, getNbrRetrait} from '../service'
+import {createContext, useContext, useEffect, useMemo, useState} from 'react'
+import { getClient, getDepots, getRetraits } from '../service'
+
 
 const AppContext = createContext()
 const {Provider} = AppContext
 
 const AppProvider = ({children}) => {
-    const [clients, setClients] = useState([])
-    const [nombreDepot, setNombreDepot] = useState([])
-    const [nombreRetrait, setNombreRetrait] = useState([])
+   
     const [token, setToken] = useState(localStorage.getItem('ekonzo_token') || null)
     const [user, setUser] = useState(() => {
         const stored = localStorage.getItem('ekonzo_user')
         return stored ? JSON.parse(stored) : null
     })
+    const[clients, setClients] = useState([])
+    const[depots, setDepots] = useState([])
+    const[retraits, setRetraits] = useState([])
 
-    const fetchClients = () => {
-        getClient().then(setClients)
-    }
-
-    const fetchNombreDepot = () => {
-        getNbrDepot().then(setNombreDepot)
-    }
-
-    const fetchNombreRetrait = () => {
-        getNbrRetrait().then(setNombreRetrait)
-    }
 
     const login = ({token, user}) => {
         setToken(token)
@@ -40,18 +31,23 @@ const AppProvider = ({children}) => {
         localStorage.removeItem('ekonzo_user')
     }
 
-    const value = useMemo(() => ({
-        clients,
-        fetchClients,
-        nombreDepot,
-        fetchNombreDepot,
-        nombreRetrait,
-        fetchNombreRetrait,
-        token,
+    useEffect(()=>{
+        getClient().then(setClients)
+        getDepots().then(setDepots)
+        getRetraits().then(setRetraits)
+    },[])
+
+    const value = useMemo(() => {
+        const soldeGlobal = clients.reduce((sum, solde) => sum + Number(solde?.Solde_client || 0), 0 )
+        const depotMensuel = depots.reduce((sum, depot) => sum + Number(depot?.Montant || 0), 0)
+        const depotJournaliere = depots.filter(depot => new Date(depot.Date_depot).toLocaleDateString() === new Date().toLocaleDateString()).reduce((sum, depot) => sum + Number(depot?.Montant || 0), 0)
+        const retraitMensuel = retraits.reduce((sum, retrait) => sum + Number(retrait?.Montant || 0),0)
+        const retraitJournalier = retraits.filter( retrait => new Date(retrait?.Date_retrait).toLocaleDateString() === new Date().toLocaleDateString()).reduce((sum, retrait) => sum + Number(retrait?.Montant || 0), 0)
+        return { token,
         user,
         login,
-        logout,
-    }), [clients, nombreDepot, nombreRetrait, token, user])
+        logout, soldeGlobal, depotMensuel, depotJournaliere, retraitMensuel, retraitJournalier }
+    },[token, user, clients, depots, retraits])
 
     return <Provider value={value}>{children}</Provider>
 }

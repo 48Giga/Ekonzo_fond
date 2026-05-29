@@ -3,11 +3,8 @@ import { Link, useLoaderData } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Utilisateur from '../components/Utilisateur';
 import { ArrowBigLeft } from 'lucide-react';
+import { formatCurrent } from '../utils/helpers';
 
-const nmbr_format = new Intl.NumberFormat("fr-CD", {
-    style: "currency",
-    currency: "CDF"
-});
 
 const RecuRetrait = () => {
     const client = useLoaderData()
@@ -55,7 +52,7 @@ const RecuRetrait = () => {
                        <hr className='text-zinc-300' />
                        <div className="Body py-2 flex justify-center">
                         <span className="text-3xl font-[consolas] text-primary/60 font-bold">
-                         {nmbr_format.format(client[0]?.Montant)}
+                         {formatCurrent(client[0]?.Montant)}
                         </span>
                        </div>
                        <hr className='text-zinc-300' />
@@ -100,7 +97,7 @@ const RecuRetrait = () => {
                                 <h4 className="opacity-60">Frais :</h4>
                                 <div className='space-x-2'>
                                     <span className="font-bold  uppercase text-primary text-xs">
-                                      { nmbr_format.format(client[0].Commission)}
+                                      { formatCurrent(client[0].Commission)}
                                     </span>
                                 </div>
                         </div>

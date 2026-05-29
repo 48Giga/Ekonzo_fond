@@ -20,11 +20,11 @@ export const CorpsCard = ({title, number, icon}) => {
             <div className="px-4 max-2xl:space-y-4">
                 <h2 className="stat-title text-primary/60 font-bold"> {title} </h2>
                 <div className="flex justify-between">
-                    <h4 className="text-2xl text-primary font-[consolas] py-2 font-semibold max-sm:text-xl">
+                    <h4 className="text-2xl text-secondary font-[consolas] py-2 font-semibold max-sm:text-xl">
                        
                         {number}
                     </h4>
-                    <span className="">{icon}</span>
+                    <span className="text-primary">{icon}</span>
                 </div>
             </div>
         </div>

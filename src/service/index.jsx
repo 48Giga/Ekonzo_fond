@@ -13,6 +13,7 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
+
 export function loginUser(credentials) {
   return apiClient.post(`${apiKey}/login`, credentials).then((res) => res.data)
 }
@@ -35,15 +36,21 @@ export function getById({params}) {
 
 }
 
-export function getScoreEkonzo() {
+export function getDepots() {
     return new Promise((resolve) => {
-        apiClient.get(`${apiKey}/score_ekonzo`)
+        apiClient.get(`${apiKey}/all_depots`)
             .then(res => res.data)
-            .then(resolve)
-            .catch(err => console.error(err))
-    })
+            .then(resolve);
+    });
 }
 
+export function getRetraits() {
+    return new Promise((resolve) => {
+        apiClient.get(`${apiKey}/all_retraits`)
+            .then(res => res.data)
+            .then(resolve);
+    });
+}
 
 export function getNbrDepot() {
     return new Promise((resolve) => {
@@ -164,5 +171,5 @@ export function createClient(val) {
 }
 
 export function updateClient(val, id) {
-    return apiClient.put(`${apiKey}/update_clien/${id}`, val).then((res) => res.data).catch((err) => console.error(err));
+    return apiClient.put(`${apiKey}/update_client/${id}`, val).then((res) => res.data).catch((err) => console.error(err));
 }

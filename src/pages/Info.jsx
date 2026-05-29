@@ -1,15 +1,12 @@
 import { Link, useLoaderData, useNavigate } from "react-router-dom";
-// import { useAppContext } from '../context'
 import { supprimerClient, updateClient } from "../service";
 import Navigation from "../components/Navigation";
 import { useEffect, useState } from "react";
 import Utilisateur from "../components/Utilisateur";
 import { ArrowBigLeft, Edit, Trash, Trash2, User } from "lucide-react";
+import { formatCurrent } from "../utils/helpers";
 
-const nmbr_format = new Intl.NumberFormat("fr-CD", {
-  style: "currency",
-  currency: "CDF",
-});
+
 
 const Info = () => {
   const client = useLoaderData();
@@ -18,14 +15,17 @@ const Info = () => {
     parseFloat(client[0]?.Solde_client) / parseFloat(client[0]?.Mise_client);
   const prenom = client[0].Prenom_client.toLowerCase();
 
-  let longueurCode = client[0].Code_client.length;
+  
 
-  const lastLetter = client[0].Code_client.at(-1); // output derniere lettre
-  const firstLetter = client[0].Code_client.substring(0, 2); // output two first letter
-  const midwere = client[0].Code_client.substring(0, longueurCode - 1); // iliminer last letter
-  const midwerLetter = midwere.substring(2); //output midwere letter
-
-  const code = firstLetter + " - " + midwerLetter + " - " + lastLetter;
+  const code = (() => {
+    const value = client[0].Code_client || ''
+    const longueurCode = value.length
+    const lastLetter = value.at(-1) || ''
+    const firstLetter = value.substring(0, 2)
+    const midwere = value.substring(0, Math.max(0, longueurCode - 1))
+    const midwerLetter = midwere.substring(2)
+    return `${firstLetter} - ${midwerLetter} - ${lastLetter}`
+  })()
 
   const navigate = useNavigate();
 
@@ -100,12 +100,11 @@ const Info = () => {
         titre={
           <Link
             to={"/create"}
-            className="flex gap-6 text-white items-center px-2"
+            className="flex gap-6 text-neutral-content items-center px-2"
           >
             <ArrowBigLeft />
-            <span className="flex items-center ga-2 text-2xl font-bold max-sm:text-xl">
-                <User/>
-                Sigle client
+            <span className="flex items-center text-2xl font-bold max-sm:text-xl">
+                {code}
             </span>
           </Link>
         }
@@ -113,24 +112,24 @@ const Info = () => {
       >
         <div className="w-full place-items-center py-8 max-md:pb-2">
           <div className="max-w-[400px] mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
-            <h1 className="font-bold text-lg text-center text-primary/60  uppercase max-sm:text-lg max-sm:py-2">
+            <h1 className="font-bold text-lg text-center text-secondary/60  uppercase max-sm:text-lg max-sm:py-2">
               Detail du client
             </h1>
             <h2 className="text-center font-bold text-shadow-2xs text-neutral-content bg-primary">
               {code.toUpperCase()}
             </h2>
             <div className="px-1  max-sm:w-full">
-              <h4 className="text-start text-primary text-[14px] py-2 opacity-60 font-semibold">
+              <h4 className="text-start text-secondary text-[14px] py-2 opacity-60 font-semibold">
                 Identité du client
               </h4>
               <hr className="w-2xs text-gray-200 text-center" />
               <div className="flex gap-2 items-center">
                 <h4 className="opacity-60">Noms :</h4>
                 <div>
-                  <span className="font-bold uppercase text-primary text-xs">
+                  <span className="font-bold uppercase text-secondary text-xs">
                     {`${client[0]?.Nom_client} ${client[0]?.Post_Nom_client} `}
                   </span>
-                  <span className="font-bold text-primary text-xs capitalize">
+                  <span className="font-bold text-secondary text-xs capitalize">
                     {prenom}
                   </span>
                 </div>
@@ -138,7 +137,7 @@ const Info = () => {
 
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Adresse :</h4>
-                <h4 className="font-bold text-primary capitalize text-xs">
+                <h4 className="font-bold text-secondary capitalize text-xs">
                   {client[0]?.Adresse_client}
                 </h4>
               </div>
@@ -146,40 +145,40 @@ const Info = () => {
               <div className="flex justify-between">
                 <div className="flex items-center gap-2">
                   <h4 className="opacity-60">Créé :</h4>
-                  <h4 className="font-bold text-primary capitalize text-xs">
+                  <h4 className="font-bold text-secondary capitalize text-xs">
                     {created}
                   </h4>
                 </div>
                 <div className="flex items-center gap-2">
                   <h4 className="opacity-60">Actuel :</h4>
-                  <h4 className="font-bold text-primary capitalize text-xs">
+                  <h4 className="font-bold text-secondary capitalize text-xs">
                     {new Date().toLocaleDateString()}
                   </h4>
                 </div>
               </div>
 
               {/* <div className="py-2 max-sm:py-1"></div> */}
-              <h4 className="text-start text-primary text-[14px] py-2 opacity-60 font-semibold">
+              <h4 className="text-start text-secondary text-[14px] py-2 opacity-60 font-semibold">
                 Finance du client
               </h4>
               <hr className="w-2xs text-gray-200 text-center" />
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Nombre de case :</h4>
-                <h4 className="font-bold text-primary capitalize text-xs">
+                <h4 className="font-bold text-secondary capitalize text-xs">
                   {nbr_case.toFixed(0)}
                 </h4>
               </div>
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Mise :</h4>
-                <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                  {nmbr_format.format(client[0].Mise_client)}
+                <h4 className="font-bold font-[consolas] text-secondary capitalize text-xs">
+                  {formatCurrent(client[0].Mise_client)}
                 </h4>
               </div>
 
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Solde :</h4>
-                <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                  {nmbr_format.format(client[0].Solde_client)}
+                <h4 className="font-bold font-[consolas] text-secondary capitalize text-xs">
+                  {formatCurrent(client[0].Solde_client)}
                 </h4>
               </div>
               <hr />
@@ -375,13 +374,13 @@ const Info = () => {
                 <div className="flex gap-4 items-center">
                   <h4>Mise : </h4>
                   <span className="text-xs font-bold text-primary capitalize opacity-80">
-                    {nmbr_format.format(apercu.mise)}
+                    {formatCurrent(apercu.mise)}
                   </span>
                 </div>
                 <div className="flex gap-4 items-center">
                   <h4>Solde : </h4>
                   <span className="text-xs font-bold text-primary capitalize opacity-80">
-                    {nmbr_format.format(apercu.solde)}
+                    {formatCurrent(apercu.solde)}
                   </span>
                 </div>
               </div>

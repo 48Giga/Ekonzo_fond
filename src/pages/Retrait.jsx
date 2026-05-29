@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLoaderData } from "react-router-dom";
+import { Link} from "react-router-dom";
 import { Card } from "../components/Hero";
 import Navigation from "../components/Navigation";
 import { ArrowUp, ArrowBigLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import Utilisateur from "../components/Utilisateur";
-import { getNbrRetrait } from "../service";
+import { getNbrRetrait, getRetraits } from "../service";
+import { formatCurrent } from "../utils/helpers";
 
-const nmbr_format = new Intl.NumberFormat("fr-CD", {
-  style: "currency",
-  currency: "CDF",
-});
 
 const Retrait = () => {
-  const retraits = useLoaderData();
+  const [retraits, setRetraits] = useState([])
   const [recherche, setRecherche] = useState("");
   const [nombreRetrait, setNombreRetrait] = useState([]);
   const [currentPage, setCurrentPage] = useState(1)
@@ -20,6 +17,7 @@ const Retrait = () => {
 
   useEffect(() => {
     getNbrRetrait().then(setNombreRetrait);
+    getRetraits().then(setRetraits)
   }, []);
 
   const handleRecherche = (e) => {
@@ -138,7 +136,7 @@ const Retrait = () => {
                             Commission
                           </div>
                           <div className="text-xs text-primary uppercase font-semibold opacity-60">
-                            {nmbr_format.format(d.Commission)}
+                            {formatCurrent(d.Commission)}
                           </div>
                         </div>
 
@@ -147,7 +145,7 @@ const Retrait = () => {
                             Montant
                           </div>
                           <div className="text-xs text-primary uppercase font-semibold opacity-60 max-sm:-z-10">
-                            {nmbr_format.format(d.Montant)}
+                            {formatCurrent(d.Montant)}
                           </div>
                         </div>
 

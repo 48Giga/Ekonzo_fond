@@ -3,24 +3,23 @@ import Navigation from '../components/Navigation';
 import { Link, useLoaderData } from 'react-router-dom';
 import { ArrowBigLeft } from 'lucide-react';
 import Utilisateur from '../components/Utilisateur';
+import { formatCurrent } from '../utils/helpers';
 
-const nmbr_format = new Intl.NumberFormat("fr-CD", {
-    style: "currency",
-    currency: "CDF"
-});
+
 
 const RecuDepot = () => {
 
     const client = useLoaderData()
 
-    let longueurCode = client[0].Code_client.length
-
-    const lastLetter = client[0].Code_client.at(-1) // output derniere lettre
-    const firstLetter = client[0].Code_client.substring(0, 2) // output two first letter
-    const midwere = client[0].Code_client.substring(0, longueurCode - 1) // iliminer last letter
-    const midwerLetter = midwere.substring(2) //output midwere letter
-
-    const code = firstLetter + " - " + midwerLetter + " - " + lastLetter
+    const code = (() => {
+    const value = client.Code_client || ''
+    const longueurCode = value.length
+    const lastLetter = value.at(-1) || ''
+    const firstLetter = value.substring(0, 2)
+    const midwere = value.substring(0, Math.max(0, longueurCode - 1))
+    const midwerLetter = midwere.substring(2)
+    return `${firstLetter} - ${midwerLetter} - ${lastLetter}`
+  })()
 
     
 
@@ -55,7 +54,7 @@ const RecuDepot = () => {
                        <hr className='text-zinc-300' />
                        <div className="Body py-2 flex justify-center">
                         <span className="text-3xl font-[consolas] text-primary/60 font-bold">
-                         {nmbr_format.format(client[0]?.Montant)}
+                         {formatCurrent(client[0]?.Montant)}
                         </span>
                        </div>
                        <hr className='text-zinc-300' />

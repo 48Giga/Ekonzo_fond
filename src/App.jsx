@@ -103,8 +103,7 @@ const chemin = createBrowserRouter([
           <ProtectedRoute>
             <Retrait />
           </ProtectedRoute>
-        ),
-        loader: () => protectedFetch(`${string_uri}/${apiKey}/all_retraits`),
+        )
       },
       {
         path: '/liste_dettes',
@@ -121,8 +120,8 @@ const chemin = createBrowserRouter([
           <ProtectedRoute>
             <Depot />
           </ProtectedRoute>
-        ),
-        loader: () => protectedFetch(`${string_uri}/${apiKey}/all_depots`),
+        )
+        
       },
       {
         path: '/recu_depot',
