@@ -9,6 +9,7 @@ import { formatCurrent } from "../utils/helpers";
 
 
 const Retrait = () => {
+  
   const [retraits, setRetraits] = useState([])
   const [recherche, setRecherche] = useState("");
   const [nombreRetrait, setNombreRetrait] = useState([]);
@@ -36,29 +37,6 @@ const Retrait = () => {
 
   return (
     <div>
-      <Navigation
-        titre={
-          <Link to={"/"} className="flex gap-2 text-white items-center px-2">
-            <ArrowBigLeft />
-            <span className="text-2xl font-bold max-sm:text-xl">Retour</span>
-          </Link>
-        }
-        winget={
-          <div className="flex gap-4 items-center">
-            <span className="text-white">
-              <label className="swap">
-                <div className="indicator">
-                  <span className="badge badge-sm indicator-item text-success font-semibold">
-                    {nombreRetrait}
-                  </span>
-                  <ArrowUp />
-                </div>
-              </label>
-            </span>
-            <Utilisateur />
-          </div>
-        }
-      />
 
       <div className="max-w-2xl mx-auto m-4">
         <Card>
@@ -66,7 +44,7 @@ const Retrait = () => {
             <h4 className="text-xl font-medium py-2 px-4">Liste de retraits</h4>
           </div>
           <div className="px-6 pb-4">
-            <ul className="list bg-base-100 rounded-box shadow-md">
+            <ul className="list bg-base-100 rounded-box w-full shadow-md">
               <input
                 type="range"
                 min={3}
@@ -111,7 +89,7 @@ const Retrait = () => {
                         <div>
                           <div className="avatar avatar-placeholder">
                             <div className="w-10 bg-primary text-neutral-content rounded-full">
-                              <span className="font-bold uppercase">
+                              <span className="font-bold uppercase text-primary-content">
                                 {avatar}
                               </span>
                             </div>

@@ -3,6 +3,7 @@ import Liste from "./Liste";
 import { Link } from "react-router-dom";
 import { Download, Upload } from "lucide-react";
 import { getClient } from "../service";
+import ClientRecent from "./ClientRecent";
 
 function Bouttons() {
 
@@ -55,7 +56,7 @@ function Bouttons() {
                           <div className="flex gap-4">
                             <div>
                               <div className="avatar avatar-placeholder">
-                                <div className="w-10 bg-primary text-neutral-content rounded-full">
+                                <div className="w-10 bg-primary text-primary-content rounded-full">
                                   <span className=" uppercase font-bold">
                                     {avatar}
                                   </span>
@@ -125,7 +126,7 @@ function Bouttons() {
                         <div className="flex gap-4">
                           <div>
                             <div className="avatar avatar-placeholder">
-                              <div className="w-10 bg-primary text-neutral-content rounded-full">
+                              <div className="w-10 bg-primary text-primary-content rounded-full">
                                 <span className=" uppercase font-bold">
                                   {avatar}
                                 </span>

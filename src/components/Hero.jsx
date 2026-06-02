@@ -35,7 +35,7 @@ export const CorpsCard = ({title, number, icon}) => {
 const Hero = () => {
     return (
         <>
-            <div className="mx-4 py-8 px-2 relative max-sm:mx-1">
+            <div className="mx-4 py-8 px-6 relative max-sm:mx-1">
                 <div className="relative grid w-full grid-cols-4 gap-4 max-md:grid-cols-2 max-sm:grid-cols-1">
                     <ScoreEkonzo/>
                     <CardDepot/>

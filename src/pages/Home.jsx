@@ -5,6 +5,9 @@ import Navigation from "../components/Navigation";
 import Utilisateur from "../components/Utilisateur";
 import { useEffect, useState } from "react";
 import { getNbrDepot, getNbrRetrait } from "../service";
+import ClientForm from "../components/ClientForm";
+import { X, Grip, Eye  } from "lucide-react";
+import ClientRecent from "../components/ClientRecent";
 
 
 function Home() {
@@ -12,7 +15,7 @@ function Home() {
   const [nombreRetrait, setNombreRetrait] = useState([])
   const [nombreDepot, setNombreDepot] = useState([])
 
-  const nbr_transaction = nombreDepot + nombreRetrait
+  const nbr_transaction = Number(nombreDepot || 0) + Number(nombreRetrait || 0)
 
   useEffect(() => {
     getNbrDepot().then(setNombreDepot);
@@ -26,7 +29,7 @@ function Home() {
           <span className="w-10">
             <img src="favicons.png" />
           </span>
-          <span className="text-2xl font-bold max-sm:text-xl">Ekonzo finance</span>
+          <span className="text-2xl text-primary-content font-bold max-sm:text-xl">Ekonzo finance</span>
         </Link>
       }
       winget={
@@ -64,8 +67,8 @@ function Home() {
             </span>
             <span className="text-white">
               <label className="swap">
-                <div className="indicator">
-                  <span className="badge badge-sm indicator-item text-success font-semibold">
+                <div className=" indicator">
+                  <span className="badge bg-primary-content badge-sm indicator-item font-semibold">
                     {nbr_transaction}
                   </span>
                   <svg
@@ -92,6 +95,19 @@ function Home() {
     >
       <Hero />
       <Bouttons />
+      
+
+      <div className="fab fab-flower fixed right-2 lg:right-[30%] bottom-40 print:hidden">
+        
+        <div tabIndex={0} role="button" className="btn btn-lg btn-circle btn-primary">
+          <Grip />
+        </div>
+        <button className="fab-main-action btn btn-circle btn-lg">
+          <X /> 
+        </button>
+
+        <ClientForm />
+      </div>
 
     </Navigation>
 

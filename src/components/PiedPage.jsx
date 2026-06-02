@@ -1,5 +1,5 @@
 import React from "react";
-import icon from '../../public/favicons.png'
+import icon from '/favicons.png?url'
 
 function PiedPage() {
     return (

@@ -3,16 +3,13 @@ import Home from './pages/Home'
 import Erreur from './pages/Erreur'
 import PiedPage from './components/PiedPage'
 import Info from './pages/Info'
-import Client from './pages/Client'
 import Transactions from './pages/Transactions'
 import Transaction from './pages/Transaction'
-import Retrait from './pages/Retrait'
-import Depot from './pages/Depot'
 import RecuDepot from './pages/RecuDepot'
 import RecuRetrait from './pages/RecuRetrait'
-import Dette from './pages/Dette'
 import Login from './pages/Login'
 import { useAppContext } from './context/index.jsx'
+import Admin from './pages/Admin.jsx'
 
 const string_uri = 'http://localhost:4500'
 const apiKey = 'ekonzo'
@@ -62,22 +59,21 @@ const chemin = createBrowserRouter([
         ),
       },
       {
-        path: '/info_client/:code',
+        path: '/info_client/:id',
         element: (
           <ProtectedRoute>
             <Info />
           </ProtectedRoute>
         ),
-        loader: ({ params }) => protectedFetch(`${string_uri}/${apiKey}/single_client/${params.code}`),
+    
       },
       {
-        path: '/create',
+        path: '/manager',
         element: (
           <ProtectedRoute>
-            <Client />
+            <Admin/>
           </ProtectedRoute>
-        ),
-        loader: () => protectedFetch(`${string_uri}/${apiKey}/adress_max_id`),
+        )
       },
       {
         path: '/transactions/:id',
@@ -85,8 +81,7 @@ const chemin = createBrowserRouter([
           <ProtectedRoute>
             <Transactions />
           </ProtectedRoute>
-        ),
-        loader: ({ params }) => protectedFetch(`${string_uri}/${apiKey}/single_client/${params.id}`),
+        )
       },
       {
         path: '/transaction/:id',
@@ -94,35 +89,9 @@ const chemin = createBrowserRouter([
           <ProtectedRoute>
             <Transaction />
           </ProtectedRoute>
-        ),
-        loader: ({ params }) => protectedFetch(`${string_uri}/${apiKey}/single_client/${params.id}`),
-      },
-      {
-        path: '/liste_retraits',
-        element: (
-          <ProtectedRoute>
-            <Retrait />
-          </ProtectedRoute>
         )
       },
-      {
-        path: '/liste_dettes',
-        element: (
-          <ProtectedRoute>
-            <Dette />
-          </ProtectedRoute>
-        ),
-        loader: () => protectedFetch(`${string_uri}/${apiKey}/all_dettes`),
-      },
-      {
-        path: '/liste_depots',
-        element: (
-          <ProtectedRoute>
-            <Depot />
-          </ProtectedRoute>
-        )
-        
-      },
+     
       {
         path: '/recu_depot',
         element: (

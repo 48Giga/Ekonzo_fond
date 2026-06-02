@@ -10,15 +10,15 @@ const CardDepot = () => {
     const {depotMensuel, depotJournaliere} = useAppContext()
     
     const titre = "Dépot journalière";
-    const depot_J = formatCurrent(depotJournaliere);
-    const depot_M = formatCurrent(depotMensuel);
+
 
     return (
         <Card>
 
             <CorpsCard
                 title={<div className="pt-2"> {titre} </div>}
-                number={depot_J}
+                number={!depotJournaliere ? (<span className="loading loading-ring loading-md"></span>) 
+                    : formatCurrent(depotJournaliere)}
                 icon={
                     <div className="btn btn-circle btn-ghost text-primary ">
                         <Link to={"/liste_depots"}>
@@ -30,7 +30,8 @@ const CardDepot = () => {
 
             <CorpsCard
                 title={"Dépot mensuel"}
-                number={depot_M}
+                number={!depotMensuel ? (<span className="loading loading-ring loading-md"></span>)
+                    : formatCurrent(depotMensuel)}
                 icon={
                     <div className="btn btn-circle btn-ghost text-primary ">
                         <Link to={"/liste_depots"}>

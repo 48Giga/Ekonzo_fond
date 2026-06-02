@@ -37,7 +37,7 @@ const Login = () => {
         <section className="space-y-5">
           <div className="badge badge-primary badge-lg">Ekonzo Finance</div>
           <h1 className="text-4xl font-medium text-base-content sm:text-5xl">
-            Plateforme microfinance <span className="text-primary font-bold">Ekonzo</span>  pour dépôt, retrait, ouverture de compte.
+            Plateforme microfinance <span className="text-primary-content font-bold">Ekonzo</span>  pour dépôt, retrait, ouverture de compte.
           </h1>
           <p className="text-lg text-base-content/80">
             Bwakisa carte modernisée, sécurisez l’accès aux opérations financières, pour la gestion quotidienne.
@@ -46,7 +46,7 @@ const Login = () => {
         </section>
         <section>
           <div className="w-full max-w-md bg-base-100 p-8 rounded-lg shadow-lg">
-              <h1 className="text-2xl text-primary font-bold mb-4 text-center">Connexion</h1>
+              <h1 className="text-2xl text-primary-content font-bold mb-4 text-center">Connexion</h1>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="label">

@@ -36,7 +36,7 @@ const Utilisateur = () => {
                         className="menu menu-sm dropdown-content space-y-3 bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
                     >
                         <li>
-                            <Link to='/create' className="btn btn-primary justify-between">
+                            <Link to='/manager' className="btn btn-primary justify-between">
                                 Administrateur
                                 <span className="badge"><UserPlus2 /></span>
                             </Link>

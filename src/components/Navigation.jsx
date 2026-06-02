@@ -14,9 +14,9 @@ const Navigation = ({titre, menu, winget, children}) => {
                     </div>
                 </nav>
             </header>
-            <div className="separateur h-10 max-md:h-14 max-xl:h-12 print:h-0"></div>
-            <main className="xl:hero ">
-                <div className=" xl:hero-content ">{children}</div>
+            <div className="separateur h-14 max-md:h-14 max-xl:h-12 print:h-0"></div>
+            <main className=" my-6">
+                {children}
             </main>
         </div>
     );

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
-import { Link, useLoaderData, useNavigate } from "react-router-dom";
-import { addRetrait } from "../service";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { addRetrait, getClient } from "../service";
 import Utilisateur from "../components/Utilisateur";
 import {
   ArrowBigLeft,
@@ -10,18 +10,69 @@ import {
   UploadIcon,
 } from "lucide-react";
 import { formatCurrent } from "../utils/helpers";
+import confetti from 'canvas-confetti';
 
 
 const Transaction = () => {
-  const client = useLoaderData();
+  
+  const {id} = useParams()
+  const [clients, setClients] = useState([])
   const navigate = useNavigate();
+  const [apercu, setApercu] = useState(null);
+  const [message, setMessage] = useState("");
+  const [erreur, setErreur] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const nbr_case =
-    parseFloat(client[0].Solde_client) / parseFloat(client[0].Mise_client);
-  const prenom = client[0].Prenom_client.toLowerCase();
+  const clientResponse = clients.filter((client) => String(client?.id_client) === String(id))
+  const client = Array.isArray(clientResponse) ? clientResponse[0] : clientResponse
+
+   //Proprieter de retrait
+
+  const [retraitValues, setRetraitValues] = useState({
+    clientId: id,
+    commission: Number(client?.Mise_client),
+    montant: 0,
+    date: new Date().toISOString().split('T')[0]
+  });
+
+  //Proprieter de dette
+
+  const [detteValues, setDetteValues] = useState({
+    clientId: Number(client?.id_client || 0),
+    commission: 0,
+    montant: 0,
+    date: "",
+  });
+
+
+  useEffect(() => {
+    getClient().then(setClients)
+
+    if (client?.id_client) {
+      setRetraitValues(prev => ({...prev, clientId: client?.id_client, commission: Number(client.Mise_client)}))
+    }
+
+    if (client?.id_client) {
+      setDetteValues(prev => ({...prev, clientId: client?.id_client}))
+    }
+  }, [client?.id_client, client?.Mise_client])
+
+
+  if (!client) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    )
+  }
+
+
+  const nbr_case = parseFloat(client?.Solde_client) / parseFloat(client?.Mise_client);
+  const prenom = client?.Prenom_client.toLowerCase();
+  
 
 const code = (() => {
-    const value = client.Code_client || ''
+    const value = client?.Code_client || ''
     const longueurCode = value.length
     const lastLetter = value.at(-1) || ''
     const firstLetter = value.substring(0, 2)
@@ -32,8 +83,8 @@ const code = (() => {
 
   //  Checking solde retrait
   const insufisantFond = () => {
-    if (parseInt(client[0].Solde_client) <= parseInt(client[0].Mise_client)) {
-      setMessage(
+    if (parseInt(client?.Solde_client) <= parseInt(client?.Mise_client)) {
+      setErreur(
         "Impossible d'effectuer cette opération <br/> le client manque de fond désolé !!!"
       );
     } else {
@@ -44,9 +95,9 @@ const code = (() => {
   //  Checking solde dette
   const checkingSolde = () => {
     if (
-      parseInt(client[0].Solde_client) <= parseInt(client[0].Mise_client * 2)
+      parseInt(client?.Solde_client) <= parseInt(client?.Mise_client * 2)
     ) {
-      setMessage(
+      setErreur(
         "Impossible d'effectuer cette opération\nle client manque de fond désolé !!!"
       );
     } else {
@@ -61,9 +112,9 @@ const code = (() => {
     }
 
     let total =
-      parseInt(client[0].Solde_client) - parseInt(client[0].Mise_client);
+      parseInt(client?.Solde_client) - parseInt(client?.Mise_client);
     if (val.target.value > total) {
-      setMessage(`
+      setErreur(`
                 Solde insuffisant, veuillez reduirer le montant. \nLe client doit retiré que :
                 ${formatCurrent(total)} 
                 `);
@@ -71,15 +122,16 @@ const code = (() => {
       document.getElementById("modal_frm_retrait").close();
     }
   };
+
   // Operation de dette numérique et calcule
   const numeriCalcule = (val) => {
     if (isNaN(val.target.value) || val.target.value <= 0) {
       val.target.value = 1;
     }
 
-    let total = parseInt(client[0].Solde_client) - parseInt(client[0].Mise_client * 2);
+    let total = parseInt(client?.Solde_client) - parseInt(client?.Mise_client * 2);
     if (val.target.value > total) {
-      setMessage(
+      setErreur(
         `Solde du client est insuffisant, veuillez reduirer le montant.\nLe client doit prêté que :
           ${formatCurrent(total)} `
       );
@@ -95,42 +147,21 @@ const code = (() => {
     document.getElementById("modal-apercu").close();
   };
 
-  //Proprieter de retrait
-
-  const [retraitValues, setRetraitValues] = useState({
-    clientId: client[0].id_client,
-    commission: client[0].Mise_client,
-    montant: 0,
-    date: new Date().toISOString().split('T')[0]
-  });
-
-  //Proprieter de dette
-
-  const [detteValues, setDetteValues] = useState({
-    clientId: client[0].id_client,
-    commission: 0,
-    montant: 0,
-    date: "",
-  });
-
-  const [apercu, setApercu] = useState(null);
-  const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  // const toggleCheck = () => {
-  //     setChecked(!checked);
-  //     setRetraitValues({
-  //         ...retraitValues,
-  //         commission: 0,
-  //     });
-  // };
-
   //submit retraite
-  const submitRetrait = () => {
+  const submitRetrait = async() => {
     setIsLoading(true);
-    addRetrait(retraitValues);
-    setMessage("");
-    setTimeout(async () => await navigate("/recu_retrait"), 2000);
+    setErreur("");
+    try {
+     const response = await addRetrait(retraitValues);
+     if (response?.success) {
+      setMessage(response?.message || 'Retrait effecué')
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
+     }
+      setTimeout(async () => await navigate("/recu_retrait"), 5000);
+     
+    } catch (error) {
+      setErreur(`Erreur lors d'opération retrait : ${error}`)
+    }
   };
 
   const handleApercu = (e) => {
@@ -144,15 +175,19 @@ const code = (() => {
   };
 
   //submit dette
-  const submitDette = (event) => {
+  const submitDette = async (event) => {
     event.preventDefault();
 
     setIsLoading(true);
     try {
-      addRetrait(detteValues);
-      setTimeout(async () => await navigate("/recu_retrait"), 2000);
+      const response = await addRetrait(detteValues);
+      if (response?.success) {
+        setMessage(response?.message || 'Retrait prêt effecué')
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
+      }
+      setTimeout(async () => await navigate("/recu_retrait"), 5000);
     } catch (error) {
-      setMessage("Erreur d'opération", error);
+      setErreur(`Erreur d'opération : ${error}`);
     }
   };
 
@@ -172,14 +207,14 @@ const code = (() => {
       winget={<Utilisateur />}
     >
       <div className="w-full place-items-center py-8 max-sm:pb-0">
-        <div className="w-[400px] mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
+        <div className="max-w-full mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
           <h1 className="font-bold text-lg text-primary/60 uppercase max-sm:text-lg max-sm:py-2">
             Retrait | Dette
           </h1>
           <h2 className="text-center font-bold text-shadow-2xs text-white bg-primary">
             {code.toUpperCase()}
           </h2>
-          <div key={client[0].id_client} className="px-1  max-sm:w-full">
+          <div key={id} className="px-1  max-sm:w-full">
             <h4 className="text-start text-primary text-[14px]  opacity-85 font-semibold">
               Client
             </h4>
@@ -187,7 +222,7 @@ const code = (() => {
             <div className="flex gap-2 items-center">
               <div>
                 <span className="font-bold uppercase text-primary ">
-                  {`${client[0]?.Nom_client} ${client[0]?.Post_Nom_client} `}
+                  {`${client?.Nom_client} ${client?.Post_Nom_client} `}
                 </span>
                 <span className="font-bold text-primary capitalize">
                   {prenom}
@@ -210,14 +245,14 @@ const code = (() => {
             <div className="flex items-center gap-2">
               <h4 className="opacity-60">Mise :</h4>
               <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                {formatCurrent(client[0]?.Mise_client)}
+                {formatCurrent(client?.Mise_client)}
               </h4>
             </div>
 
             <div className="flex items-center gap-2">
               <h4 className="opacity-60">Solde :</h4>
               <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                {formatCurrent(client[0]?.Solde_client)}
+                {formatCurrent(client?.Solde_client)}
               </h4>
             </div>
             <hr />
@@ -317,17 +352,7 @@ const code = (() => {
       {/* Formulaire dette */}
 
       {/* toast */}
-      <div className="toast toast-bottom toast-center -z-50">
-        {message && (
-          <div
-            className={`alert ${
-              message.includes("ok") ? "alert-success" : "alert-error"
-            } `}
-          >
-            <span className="text-white">{message}</span>
-          </div>
-        )}
-      </div>
+      
 
       <dialog id="modal_frm_dette" className="modal">
         <div className="modal-box w-2xs">
@@ -452,6 +477,12 @@ const code = (() => {
           )}
         </div>
       </dialog>
+
+
+<div className="toast toast-bottom toast-center z-90"> {message && ( <div className={`alert alert-success bg-green-500"`}><span className="text-white">{message}</span></div>)} </div>
+<div className="toast toast-bottom toast-center z-99"> {erreur && ( <div className={`alert alert-error bg-red-500"`}><span className="text-white">{erreur}</span></div>)} </div>
+
+
       <div className="h-10 max-md:h-0"></div>
     </Navigation>
   );

@@ -12,8 +12,10 @@ function Liste({titre, children}) {
       >
         {titre}
       </button>
+
+      
       <dialog id="modal_liste" className="modal">
-        <div className="modal-box w-[400px] bg-green-50 max-h-8/12">
+        <div className="modal-box w-100 bg-green-50 max-h-8/12">
           
           {children}
         </div>

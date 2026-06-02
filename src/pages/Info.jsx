@@ -1,24 +1,31 @@
-import { Link, useLoaderData, useNavigate } from "react-router-dom";
-import { supprimerClient, updateClient } from "../service";
+import { Link,  useNavigate, useParams } from "react-router-dom";
+import { getClient, supprimerClient, updateClient } from "../service";
 import Navigation from "../components/Navigation";
 import { useEffect, useState } from "react";
 import Utilisateur from "../components/Utilisateur";
 import { ArrowBigLeft, Edit, Trash, Trash2, User } from "lucide-react";
 import { formatCurrent } from "../utils/helpers";
+import confetti from "canvas-confetti";
 
 
 
 const Info = () => {
-  const client = useLoaderData();
+
+  const {id} = useParams()
+  const [clients, setClient] = useState([])
+
+  const clientResponse = clients.filter(client => String(client?.id_client) === String(id))
+  const client = Array.isArray(clientResponse) ? clientResponse[0] : clientResponse
+
 
   const nbr_case =
-    parseFloat(client[0]?.Solde_client) / parseFloat(client[0]?.Mise_client);
-  const prenom = client[0].Prenom_client.toLowerCase();
+    parseFloat(client?.Solde_client) / parseFloat(client?.Mise_client);
+  const prenom = client?.Prenom_client.toLowerCase();
 
   
 
   const code = (() => {
-    const value = client[0].Code_client || ''
+    const value = client?.Code_client || ''
     const longueurCode = value.length
     const lastLetter = value.at(-1) || ''
     const firstLetter = value.substring(0, 2)
@@ -29,14 +36,14 @@ const Info = () => {
 
   const navigate = useNavigate();
 
-  const handlerDelete = (code) => {
+  const handlerDelete = async(id) => {
     if (confirm("Voullez-vous vraiment supprimer ce client ?")) {
-      supprimerClient(code);
-      navigate("/create");
+      await supprimerClient(id);
+      navigate("/manager");
     }
   };
 
-  const created = new Date(client[0].Date_creation).toLocaleDateString();
+  const created = new Date(client?.Date_creation).toLocaleDateString();
 
   const [modifierValues, setModifierValues] = useState({
     id: 0,
@@ -51,21 +58,28 @@ const Info = () => {
 
   const [apercu, setApercu] = useState(null)
   const [message, setMessage] = useState('')
+  const [erreur, setErreur] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    setModifierValues({
-      ...modifierValues,
-      code: client[0]?.Code_client,
-      prenom: client[0]?.Prenom_client,
-      nom: client[0]?.Nom_client,
-      postnom: client[0]?.Post_Nom_client,
-      adresse: client[0]?.Adresse_client,
-      mise: client[0]?.Mise_client,
-      solde: client[0]?.Solde_client,
-      id: client[0].id_client,
-    });
+    getClient().then(setClient)
   }, []);
+
+  useEffect(() => {
+    if (client?.id_client) {
+      setModifierValues(prev => ({
+        ...prev,
+        code: client?.Code_client,
+        prenom: client?.Prenom_client,
+        nom: client?.Nom_client,
+        postnom: client?.Post_Nom_client,
+        adresse: client?.Adresse_client,
+        mise: client?.Mise_client,
+        solde: client?.Solde_client,
+        id: client?.id_client,
+      }));
+    }
+  }, [client]);
 
   const handleApercu = e => {
     e.preventDefault()
@@ -79,18 +93,23 @@ const Info = () => {
   const handleAnnuler = () => {
     setApercu(null)
      document.getElementById('modal_apercu').close()
-    setMessage('Modification annuler, désolé !!!')
+    setErreur('Modification annuler, désolé !!!')
   }
 
-  const submitModifier = () => {
+  const submitModifier = async () => {
     setIsLoading(true)
-    setMessage('')
+    setErreur('')
 
     try {
-      updateClient(modifierValues, client[0].id_client);
-      setTimeout( async () => await location.reload(), 2000);
+      const response = await updateClient(modifierValues, client?.id_client);
+      if(response?.success) {
+        setMessage(response?.message)
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
+      }
+      
+      setTimeout( async () => await location.reload(), 5000);
     } catch (error) {
-      setMessage(`Erreur de modification, ${error}`)
+      setErreur(`Erreur de modification, ${error}`)
     }
   };
 
@@ -127,7 +146,7 @@ const Info = () => {
                 <h4 className="opacity-60">Noms :</h4>
                 <div>
                   <span className="font-bold uppercase text-secondary text-xs">
-                    {`${client[0]?.Nom_client} ${client[0]?.Post_Nom_client} `}
+                    {`${client?.Nom_client} ${client?.Post_Nom_client} `}
                   </span>
                   <span className="font-bold text-secondary text-xs capitalize">
                     {prenom}
@@ -138,7 +157,7 @@ const Info = () => {
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Adresse :</h4>
                 <h4 className="font-bold text-secondary capitalize text-xs">
-                  {client[0]?.Adresse_client}
+                  {client?.Adresse_client}
                 </h4>
               </div>
 
@@ -171,14 +190,14 @@ const Info = () => {
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Mise :</h4>
                 <h4 className="font-bold font-[consolas] text-secondary capitalize text-xs">
-                  {formatCurrent(client[0].Mise_client)}
+                  {formatCurrent(client?.Mise_client)}
                 </h4>
               </div>
 
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Solde :</h4>
                 <h4 className="font-bold font-[consolas] text-secondary capitalize text-xs">
-                  {formatCurrent(client[0].Solde_client)}
+                  {formatCurrent(client?.Solde_client)}
                 </h4>
               </div>
               <hr />
@@ -194,7 +213,7 @@ const Info = () => {
               </button>
 
               <button
-                onClick={() => handlerDelete(client[0].id_client)}
+                onClick={() => handlerDelete(client?.id_client)}
                 className="btn btn-square btn-ghost text-error hover:text-white hover:bg-error"
               >
                 <Trash2/>
@@ -204,7 +223,7 @@ const Info = () => {
             {/* Formulaire de modification */}
 
             <dialog id="modal_frm_edit" className="modal">
-              <div className="modal-box w-[400px]">
+              <div className="modal-box w-150">
                 <h4 className="mb-4 bg-primary py-2 text-center font-bold uppercase text-lg text-neutral-content">
                   Modifier client
                 </h4>
@@ -412,17 +431,8 @@ const Info = () => {
         </div>
         <div className="h-16 max-sm:h-0" ></div>
 
-        <div className="toast toast-top toast-center z-10 ">
-        {message && (
-          <div
-            className={`alert ${
-              message.includes("ok") ? "alert-success" : "alert-error"
-            } `}
-          >
-            <span className="text-white">{message}</span>
-          </div>
-        )}
-      </div>
+        <div className="toast toast-top toast-center z-99 ">{message && ( <div className={`alert alert-success bg-green-600`} ><span className="text-white">{message}</span></div>)}</div>
+        <div className="toast toast-top toast-center z-99 ">{erreur && ( <div className={`alert alert-error bg-red-600`} ><span className="text-white">{erreur}</span></div>)}</div>
       </Navigation>
     </>
   );

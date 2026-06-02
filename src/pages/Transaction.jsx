@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Navigation from '../components/Navigation'
-import { Link, useLoaderData, useNavigate } from 'react-router-dom'
-import { addDepot } from '../service'
+import { Link, useParams, useNavigate } from 'react-router-dom'
+import { addDepot, getClient } from '../service'
 import Utilisateur from '../components/Utilisateur'
 import { ArrowBigLeft } from 'lucide-react'
 import { formatCurrent } from '../utils/helpers'
@@ -10,27 +10,33 @@ import confetti from 'canvas-confetti'
 
 const Transaction = () => {
 
-  const clientResponse = useLoaderData()
-  const client = Array.isArray(clientResponse) ? clientResponse[0] : clientResponse
+  
   const navigate = useNavigate()
+  const {id} = useParams()
 
+  const [clients, setClients] = useState([])
   const [apercu, setApercu] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState("")
   const [erreur, setErreur] = useState("")
+
+  const clientResponse = clients.find(c => c.id_client === Number(id))
+  const client = clientResponse || null
+
   const [depotValues, setDepotValues] = useState({
     idClient: client?.id_client || null,
     date: new Date().toISOString().split('T')[0],
     montant: 0,
   })
-  
-  
 
-  useEffect(() => {
+
+useEffect(() => {
+    getClient().then(setClients)
     if (client?.id_client) {
       setDepotValues((prev) => ({ ...prev, idClient: client.id_client }))
     }
   }, [client?.id_client])
+  
 
   if (!client) {
     return (

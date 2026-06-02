@@ -20,13 +20,12 @@ const ScoreEkonzo = () => {
     const titre = "Effectif client";
     const effectifs = clients.length
 
-
     return (
         <Card>
             <CorpsCard
                 title={<div className="pt-2"> {titre} </div>}
                 number={
-                  clients.length === 0 ? (<span className="loading loading-spinner loading-md"></span>) : effectifs
+                  clients.length === 0 ? (<span className="loading loading-ring loading-md"></span>) : effectifs
                 }
                 icon={
                     <div className="btn btn-circle btn-ghost text-primary">
@@ -37,8 +36,8 @@ const ScoreEkonzo = () => {
             />
             <CorpsCard
                 title={"Caise"}
-                number={
-                 formatCurrent(soldeGlobal)
+                number={!soldeGlobal ? (<span className="loading loading-ring loading-lg"></span>)
+                      :   formatCurrent(soldeGlobal)
                 }
                 icon={
                     <div className="btn btn-circle btn-ghost font-bold text-primary ">

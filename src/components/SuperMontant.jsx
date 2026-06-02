@@ -51,7 +51,9 @@ function SuperMontant() {
                   <div>
                     <div className="avatar avatar-placeholder">
                       <div className="w-10 bg-primary text-neutral-content rounded-full">
-                        <span className="font-bold uppercase">{avatar}</span>
+                        <span className="font-bold uppercase text-primary-content">
+                          {avatar}
+                        </span>
                       </div>
                     </div>
                   </div>

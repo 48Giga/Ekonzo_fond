@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLoaderData } from "react-router-dom";
+import { Link} from "react-router-dom";
 import { Card } from "../components/Hero";
 import Navigation from "../components/Navigation";
 import { ArrowUp, ArrowBigLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import Utilisateur from "../components/Utilisateur";
-import { getNbrRetrait } from "../service";
+import { getDettes, getNbrRetrait } from "../service";
+import { formatCurrent } from "../utils/helpers";
 
-const nmbr_format = new Intl.NumberFormat("fr-CD", {
-  style: "currency",
-  currency: "CDF",
-});
 
 const Dette = () => {
-  const retraits = useLoaderData();
+
+  const [retraits, setRetrait] = useState([])
   const [recherche, setRecherche] = useState("");
   const [nombreRetrait, setNombreRetrait] = useState([]);
   const [currentPage, setCurrentPage] = useState(1)
@@ -20,6 +18,7 @@ const Dette = () => {
 
   useEffect(() => {
     getNbrRetrait().then(setNombreRetrait)
+    getDettes().then(setRetrait)
   }, [])
 
   const handleRecherche = (e) => {
@@ -38,35 +37,14 @@ const Dette = () => {
 
   return (
     <div>
-      <Navigation
-        titre={
-          <Link to={"/"} className="flex gap-2 text-white items-center px-2">
-            <ArrowBigLeft />
-            <span className="text-2xl font-bold max-sm:text-xl">Retour</span>
-          </Link>
-        }
-        winget={
-          <div className="flex gap-4 items-center">
-            <span className="text-white">
-              <label className="swap">
-                <div className="indicator">
-                  <span className="badge badge-sm indicator-item text-success font-semibold">
-                    {nombreRetrait}
-                  </span>
-                  <ArrowUp />
-                </div>
-              </label>
-            </span>
-            <Utilisateur />
-          </div>
-        }
-      />
-
       <div className="max-w-2xl mx-auto m-4">
+
         <Card>
+
           <div>
             <h4 className="text-xl font-medium py-2 px-4">Liste de dettes</h4>
           </div>
+
           <div className="px-6 pb-4">
             <ul className="list bg-base-100 rounded-box shadow-md">
               <input
@@ -87,7 +65,7 @@ const Dette = () => {
                 />
               </div>
 
-              {retraits
+              { retraits
                 .filter((d) => {
                   const fullname =
                     d.Code_client +
@@ -143,7 +121,7 @@ const Dette = () => {
                             Montant
                           </div>
                           <div className="text-xs text-primary uppercase font-semibold opacity-60 max-sm:-z-10">
-                            {nmbr_format.format(d.Montant)}
+                            {formatCurrent(d.Montant)}
                           </div>
                         </div>
 
@@ -159,7 +137,9 @@ const Dette = () => {
                 })}
             </ul>
           </div>
+
           <div className="py-4">
+
             <div className="mx-auto max-w-2xs bg-zinc-100">
               <div className="flex items-center justify-between">
                 <button
@@ -181,8 +161,11 @@ const Dette = () => {
                 </button>
               </div>
             </div>
+            
           </div>
+
         </Card>
+
       </div>
     </div>
   );

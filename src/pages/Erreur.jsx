@@ -1,18 +1,24 @@
 import React from 'react';
-import {useRouteError} from 'react-router-dom';
+import {Link, Navigate, useRouteError} from 'react-router-dom';
 
 function Erreur() {
+
     const erreur = useRouteError()
-    console.error(erreur);
+    
 
     return (
-        <div className='max-w-4xl bg-red-200  mx-auto p-4'>
-            <h1 className='text-xl font-bold text-center'>
+        <div className=' hero bg-red-200 '>
+            <div className="hero-content flex-col text-center">
+                <h1 className='text-6xl font-bold text-center'>
                 Erreur 404, page introuvable
             </h1>
-            <p className='py-6 text-red-500 text-center'>
+            <p className='py-6 text-red-500 text-2xl text-center'>
                 {erreur.error.toString() ?? erreur.toString()}
             </p>
+                <Link to="/" className="btn btn-primary">
+                    Retour à l'accueil
+                </Link>
+            </div>
         </div>
     );
 }

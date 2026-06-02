@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: silk --default, black --prefersdark;
+  themes: all
 }
 
 /* @custom-variant dark (&:where([data-theme=night], [data-theme=night] *)); */

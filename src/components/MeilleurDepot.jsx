@@ -43,14 +43,14 @@ function MeilleurDepot() {
                                 const avatar = d.Nom_client.charAt(0) + d.Post_Nom_client.charAt(0);
                                 return (
                                     <li
-                                        key={d.id_client}
-                                        className="grid grid-cols-2 px-4 py-1 border-b-1 border-gray-200 even:bg-base-200 max-sm:px-1 max-sm:flex max-sm:justify-between"
+                                        key={i}
+                                        className="grid grid-cols-2 px-4 py-1 border-b border-gray-200 even:bg-base-200 max-sm:px-1 max-sm:flex max-sm:justify-between"
                                     >
                                         <div className="flex gap-4">
                                             <div>
                                                 <div className="avatar avatar-placeholder">
                                                     <div className="w-10 bg-primary text-neutral-content rounded-full">
-                                                        <span className="font-bold uppercase">{avatar}</span>
+                                                        <span className="font-bold uppercase text-primary-content">{avatar}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -82,7 +82,7 @@ function MeilleurDepot() {
                                         </div>
                                     </li>
                                 )
-                            }) : <td>Aucun dépot n'effectuer</td>
+                            }) : <span>Aucun dépot n'effectuer</span>
                     }
                 </ul>
             </div>

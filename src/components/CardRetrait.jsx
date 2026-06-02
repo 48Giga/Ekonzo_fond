@@ -13,15 +13,16 @@ const CardRetrait = () => {
     
 
     const titre = "Rétrait journalière";
-    const retrait_J = formatCurrent(retraitJournalier);
-    const retrait_m = formatCurrent(retraitMensuel);
+    //const retrait_J = ;
+    //const retrait_m = ;
 
 
     return (
         <Card>
             <CorpsCard
                 title={<div className="pt-2"> {titre} </div>}
-                number={retrait_J}
+                number={!retraitJournalier ? (<span className="loading loading-ring loading-lg"></span>) 
+                    : formatCurrent(retraitJournalier)}
                 icon={
                     <div className="btn btn-circle btn-ghost text-primary">
                         <Link to={"/liste_retraits"}>
@@ -33,7 +34,9 @@ const CardRetrait = () => {
 
             <CorpsCard
                 title={"Retrait mensuel"}
-                number={retrait_m}
+                number={!retraitMensuel ? (<span className="loading loading-ring loading-lg"></span>)
+                    : formatCurrent(retraitMensuel)
+                }
                 icon={
                     <div className="btn btn-circle btn-ghost text-primary">
                         <Link to={"/liste_retraits"}>

@@ -1,30 +1,26 @@
-import {useEffect, useState} from 'react';
 import {Card, CorpsCard} from './Hero';
-import {getScoresCommission, getScoresCommissions} from '../service';
 import {Link} from 'react-router-dom';
 import { Download, DownloadIcon, Upload } from 'lucide-react';
 import { formatCurrent } from '../utils/helpers';
+import { useAppContext } from '../context';
 
 
 
 const CardCommission = () => {
-    const [commission, setCommission] = useState([]);
-    const [commissions, setCommissions] = useState([]);
-
-    useEffect(() => {
-        getScoresCommission().then(setCommission),
-        getScoresCommissions().then(setCommissions)
-    }, []);
+   
+    const { commission, comJornaliere } = useAppContext()
 
     const titre = "Commission journalière";
-    const commission_j = formatCurrent(commission);
-    const commission_M = formatCurrent(commissions);
+    
+
 
     return (
         <Card>
             <CorpsCard
                 title={<div className="pt-2"> {titre} </div>}
-                number={commission_j}
+                number={!comJornaliere ? (<span className="loading loading-ring loading-lg"></span>) :
+                    formatCurrent(comJornaliere)
+                }
                 icon={
                     <div className="btn btn-circle btn-ghost text-primary ">
                         <Link to={"/liste_dettes"}>
@@ -37,7 +33,8 @@ const CardCommission = () => {
 
             <CorpsCard
                 title={"Commission mensuel"}
-                number={commission_M}
+                number={!commission ? (<span className="loading loading-ring loading-lg"></span>) 
+                    : formatCurrent(commission)}
                 icon={
                     <div className="btn btn-circle btn-ghost text-primary ">
                         <Link to={"/liste_dettes"}>
