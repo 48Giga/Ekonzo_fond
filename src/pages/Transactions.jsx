@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { addRetrait, getClient } from "../service";
+import { addRetrait, getSingleClient } from "../service";
 import Utilisateur from "../components/Utilisateur";
 import {
   ArrowBigLeft,
   LucideArrowDownUp,
   Upload,
   UploadIcon,
+  X,
 } from "lucide-react";
 import { formatCurrent } from "../utils/helpers";
 import confetti from 'canvas-confetti';
@@ -16,15 +17,15 @@ import confetti from 'canvas-confetti';
 const Transaction = () => {
   
   const {id} = useParams()
-  const [clients, setClients] = useState([])
   const navigate = useNavigate();
+  const [clientRes, setClientRes] = useState([])
   const [apercu, setApercu] = useState(null);
   const [message, setMessage] = useState("");
   const [erreur, setErreur] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const clientResponse = clients.filter((client) => String(client?.id_client) === String(id))
-  const client = Array.isArray(clientResponse) ? clientResponse[0] : clientResponse
+  
+  const client = clientRes[0] || null
 
    //Proprieter de retrait
 
@@ -38,7 +39,7 @@ const Transaction = () => {
   //Proprieter de dette
 
   const [detteValues, setDetteValues] = useState({
-    clientId: Number(client?.id_client || 0),
+    clientId: id,
     commission: 0,
     montant: 0,
     date: "",
@@ -46,7 +47,7 @@ const Transaction = () => {
 
 
   useEffect(() => {
-    getClient().then(setClients)
+    getSingleClient(id).then(setClientRes)
 
     if (client?.id_client) {
       setRetraitValues(prev => ({...prev, clientId: client?.id_client, commission: Number(client.Mise_client)}))
@@ -55,7 +56,7 @@ const Transaction = () => {
     if (client?.id_client) {
       setDetteValues(prev => ({...prev, clientId: client?.id_client}))
     }
-  }, [client?.id_client, client?.Mise_client])
+  }, [client?.id_client, client?.Mise_client, id])
 
 
   if (!client) {
@@ -199,42 +200,42 @@ const code = (() => {
             <ArrowBigLeft />
           </span>
           <span className="flex items-center gap-2 text-2xl font-bold max-sm:text-xl">
-            <LucideArrowDownUp />
-            Transactions
+            {code.toUpperCase()}
           </span>
         </Link>
       }
       winget={<Utilisateur />}
     >
-      <div className="w-full place-items-center py-8 max-sm:pb-0">
-        <div className="max-w-full mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
+      <div className="max-w-100 mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
+        
           <h1 className="font-bold text-lg text-primary/60 uppercase max-sm:text-lg max-sm:py-2">
             Retrait | Dette
           </h1>
-          <h2 className="text-center font-bold text-shadow-2xs text-white bg-primary">
-            {code.toUpperCase()}
-          </h2>
-          <div key={id} className="px-1  max-sm:w-full">
-            <h4 className="text-start text-primary text-[14px]  opacity-85 font-semibold">
-              Client
-            </h4>
-
-            <div className="flex gap-2 items-center">
-              <div>
-                <span className="font-bold uppercase text-primary ">
+          <div className="text-center font-bold text-shadow-lg py-2 px-4 bg-primary">
+            <span className="font-bold uppercase text-primary-content ">
                   {`${client?.Nom_client} ${client?.Post_Nom_client} `}
                 </span>
-                <span className="font-bold text-primary capitalize">
+                <span className="font-bold text-primary-content capitalize">
                   {prenom}
                 </span>
-              </div>
-            </div>
-
-            {/* <div className="py-2 max-sm:py-1"></div> */}
-            <hr className="opacity-20" />
+          </div>
+          <div key={id} className="px-1  max-sm:w-full">
+            
             <h4 className="text-start text-primary text-[14px] py-2 opacity-85 font-semibold">
               Finance du client
             </h4>
+
+            <div className="grid justify-center">
+              <h4 className="font-bold font-[consolas] text-primary stat-value">
+                {formatCurrent(client.Solde_client)}
+              </h4>
+              <div className="flex items-center gap-2">
+                <h4 className="opacity-60">Mise :</h4>
+                <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
+                  {formatCurrent(client.Mise_client)}
+                </h4>
+              </div>
+            </div>
 
             <div className="flex items-center gap-2">
               <h4 className="opacity-60">Nombre de case :</h4>
@@ -242,26 +243,14 @@ const code = (() => {
                 {nbr_case.toFixed(0)}
               </h4>
             </div>
-            <div className="flex items-center gap-2">
-              <h4 className="opacity-60">Mise :</h4>
-              <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                {formatCurrent(client?.Mise_client)}
-              </h4>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <h4 className="opacity-60">Solde :</h4>
-              <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                {formatCurrent(client?.Solde_client)}
-              </h4>
-            </div>
+            
             <hr />
           </div>
           {/*Deux formulaires */}
 
           <div className="flex justify-center gap-6 mt-4 print:hidden">
             <button
-              className=" place-items-center btn  btn-primary text-white hover:btn-error"
+              className=" place-items-center btn  btn-primary text-primary-content hover:btn-error"
               onClick={() => insufisantFond()}
             >
               <Upload />
@@ -275,13 +264,23 @@ const code = (() => {
               Dette
             </button>
           </div>
-        </div>
+        
       </div>
 
       {/* Formulaire retrait */}
 
       <dialog id="modal_frm_retrait" className="modal">
-        <div className="modal-box w-[320px]">
+        <div className="modal-box lg:w-100">
+          <div className="">
+            <form method="dialog">
+            <button
+              onClick={() => document.getElementById("frm-retrait").reset()}
+              className="btn btn-ghost btn-circle top-0 absolute right-2 hover:text-white hover:btn-error"
+            >
+              <X />
+            </button>
+          </form>
+          </div>
           <form action="" onSubmit={handleApercu} id="frm-retrait">
             <div className="bg-primary text-neutral-content py-2 w-full rounded-lg mb-2 -top-4">
               <h4 className="text-center font-bold uppercase">
@@ -289,37 +288,12 @@ const code = (() => {
               </h4>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="grid gap-4 items-center py-4">
+
               <label className="floating-label">
                 <span>Date</span>
-                <input
-                  type="date"
-                  onChange={(e) =>
-                    setRetraitValues({
-                      ...retraitValues,
-                      date: e.target.value,
-                    })
-                  }
-                  className="input"
-                  value={retraitValues.date}
-                  required
-                />
-              </label>
 
-              <input
-                type="number"
-                onChange={(e) =>
-                  setRetraitValues({
-                    ...retraitValues,
-                    montant: e.target.valueAsNumber,
-                  })
-                }
-                onKeyUp={numeriCalcul}
-                className="input  my-2"
-                placeholder="Montant"
-                required
-              />
-              <input
+                <input
                 type="hidden"
                 value={retraitValues?.clientId}
                 onChange={(e) =>
@@ -329,24 +303,47 @@ const code = (() => {
                   })
                 }
               />
-            </div>
+              
+                <input
+                  type="date"
+                  onChange={(e) =>
+                    setRetraitValues({
+                      ...retraitValues,
+                      date: e.target.value,
+                    })
+                  }
+                  className="input lg:input-lg lg:w-55"
+                  value={retraitValues.date}
+                  required
+                />
+              </label>
+            <div className="grid max-sm:gap-4 lg:join">
+              <input
+                type="number"
+                onChange={(e) =>
+                  setRetraitValues({
+                    ...retraitValues,
+                    montant: e.target.valueAsNumber,
+                  })
+                }
+                onKeyUp={numeriCalcul}
+                className="input text-center lg:input-lg lg:rounded-l-lg"
+                placeholder="Montant"
+                required
+              />
 
             <button
               type="submit"
-              className="btn btn-block btn-primary hover:btn-primary mb-4 hover:text-neutral-content"
+              className="btn item-join lg:rounded-r-lg lg:btn-lg  max-sm:btn-block btn-primary hover:btn-primary mb-4 hover:text-neutral-content"
             >
               Soumettrer
             </button>
+              </div>
+            </div>
+
           </form>
 
-          <form method="dialog" className="modal-backdrop">
-            <button
-              onClick={() => document.getElementById("frm-retrait").reset()}
-              className="btn btn-outline btn-primary"
-            >
-              Fermer
-            </button>
-          </form>
+          
         </div>
       </dialog>
       {/* Formulaire dette */}
@@ -419,7 +416,7 @@ const code = (() => {
       </dialog>
 
       <dialog className="modal" id="modal-apercu">
-        <div className="modal-box w-[340px]">
+        <div className="modal-box lg:w-150">
           <div className="">
             <h4 className="font-bold text-primary ">
               Vérification des informations

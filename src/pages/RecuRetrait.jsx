@@ -32,7 +32,7 @@ const RecuRetrait = () => {
         > 
        
            <div className="h-8"></div>
-                    <div className="max-w-[400px] mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
+                    <div className="max-w-100 mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
                         <h4 className='text-center'>Transaction</h4>
                        <div className="header">
                          <h1 className="font-bold text-lg text-primary/60 text-center uppercase max-sm:text-lg max-sm:py-2">Retrait</h1>

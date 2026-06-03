@@ -2,9 +2,9 @@ import axios from 'axios'
 
 const string_uri = 'http://127.0.0.1:4500' 
 const apiKey = 'ekonzo'
-const url = window.location.href
 
-const apiClient = axios.create({ baseURL: string_uri || url })
+
+const apiClient = axios.create({ baseURL:  string_uri || ''})
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('ekonzo_token')
   if (token) {
@@ -34,6 +34,14 @@ export function singUp(val) {
 export function getClient() {
     return new Promise((resolve) => {
         apiClient.get(`${apiKey}/all_clients`)
+            .then(res => res.data)
+            .then(resolve);
+    });
+};
+
+export function getSingleClient(id) {
+    return new Promise((resolve) => {
+        apiClient.get(`${apiKey}/client/${id}`)
             .then(res => res.data)
             .then(resolve);
     });

@@ -12,7 +12,7 @@ const RecuDepot = () => {
     const client = useLoaderData()
 
     const code = (() => {
-    const value = client.Code_client || ''
+    const value = client?.Code_client || ''
     const longueurCode = value.length
     const lastLetter = value.at(-1) || ''
     const firstLetter = value.substring(0, 2)
@@ -34,7 +34,7 @@ const RecuDepot = () => {
         winget={<Utilisateur/>}
         >
            <div className="h-12"></div>
-                    <div className="max-w-[400px] mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
+                    <div className="max-w-150 mx-auto p-4 bg-base-100 max-sm:px-4 shadow-lg rounded-lg">
                         <h4 className='text-center'>Transaction</h4>
                        <div className="header">
                          <h1 className="font-bold text-lg text-primary/60 text-center uppercase max-sm:text-lg max-sm:py-2">Depot</h1>

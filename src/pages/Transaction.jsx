@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Navigation from '../components/Navigation'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { addDepot, getClient } from '../service'
+import { addDepot, getSingleClient} from '../service'
 import Utilisateur from '../components/Utilisateur'
 import { ArrowBigLeft } from 'lucide-react'
 import { formatCurrent } from '../utils/helpers'
@@ -14,14 +14,14 @@ const Transaction = () => {
   const navigate = useNavigate()
   const {id} = useParams()
 
-  const [clients, setClients] = useState([])
+  const [clientId, setClientId] = useState([])
   const [apercu, setApercu] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState("")
   const [erreur, setErreur] = useState("")
 
-  const clientResponse = clients.find(c => c.id_client === Number(id))
-  const client = clientResponse || null
+  const client = clientId[0] || null
+
 
   const [depotValues, setDepotValues] = useState({
     idClient: client?.id_client || null,
@@ -31,11 +31,11 @@ const Transaction = () => {
 
 
 useEffect(() => {
-    getClient().then(setClients)
+    getSingleClient(id).then(setClientId)
     if (client?.id_client) {
       setDepotValues((prev) => ({ ...prev, idClient: client.id_client }))
     }
-  }, [client?.id_client])
+  }, [client?.id_client, id])
   
 
   if (!client) {
@@ -170,12 +170,13 @@ useEffect(() => {
             </div>
           </form>
           <hr className="opacity-20 mt-2" />
+
           <div className="">
-            <h4 className="flex justify-between text-primary-content bg-primary px-4 py-2">
+            {/* <h4 className="flex justify-between text-primary-content bg-primary px-4 py-2">
               <span>CODE</span>
               <span>MONTANT</span>
               <span>DATE</span>
-            </h4>
+            </h4> */}
             <ul className="list bg-base-100 rounded-box shadow-md">
               ...
               <div className="flex items-center gap-2">
@@ -186,10 +187,12 @@ useEffect(() => {
               </div>
             </ul>
           </div>
+
+
         </div>
       </div>
       <dialog id="modal_apercu_depot" className="modal">
-        <div className="modal-box w-[340px]">
+        <div className="modal-box ">
           <h4 className="font-bold text-start text-primary">Vérification des informations</h4>
           {apercu && (
             <div>

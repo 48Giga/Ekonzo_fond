@@ -1,5 +1,5 @@
 import { Link,  useNavigate, useParams } from "react-router-dom";
-import { getClient, supprimerClient, updateClient } from "../service";
+import { getSingleClient, supprimerClient, updateClient } from "../service";
 import Navigation from "../components/Navigation";
 import { useEffect, useState } from "react";
 import Utilisateur from "../components/Utilisateur";
@@ -12,10 +12,10 @@ import confetti from "canvas-confetti";
 const Info = () => {
 
   const {id} = useParams()
-  const [clients, setClient] = useState([])
+  const [clientId, setClientId] = useState([])
 
-  const clientResponse = clients.filter(client => String(client?.id_client) === String(id))
-  const client = Array.isArray(clientResponse) ? clientResponse[0] : clientResponse
+  
+  const client = clientId[0] || null
 
 
   const nbr_case =
@@ -62,8 +62,8 @@ const Info = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    getClient().then(setClient)
-  }, []);
+    getSingleClient(id).then(setClientId)
+  }, [id]);
 
   useEffect(() => {
     if (client?.id_client) {
@@ -118,7 +118,7 @@ const Info = () => {
       <Navigation
         titre={
           <Link
-            to={"/create"}
+            to={"/manager"}
             className="flex gap-6 text-neutral-content items-center px-2"
           >
             <ArrowBigLeft />
@@ -130,7 +130,7 @@ const Info = () => {
         winget={<Utilisateur />}
       >
         <div className="w-full place-items-center py-8 max-md:pb-2">
-          <div className="max-w-[400px] mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
+          <div className="max-w-150 mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
             <h1 className="font-bold text-lg text-center text-secondary/60  uppercase max-sm:text-lg max-sm:py-2">
               Detail du client
             </h1>
@@ -367,7 +367,7 @@ const Info = () => {
             </dialog>
 
             <dialog className="modal" id="modal_apercu">
-        <div className="modal-box w-[400px]">
+        <div className="modal-box w-150">
           {apercu && (
             <div className="">
               <h2 className="text-x text-primary font-bold">
