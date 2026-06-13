@@ -1,10 +1,11 @@
 import axios from 'axios'
 
-const string_uri = 'http://127.0.0.1:4500' 
+const url = 'http://192.168.137.1:4500/';
+const string_uri = 'http://127.0.0.1:4500';
 const apiKey = 'ekonzo'
 
 
-const apiClient = axios.create({ baseURL:  string_uri || ''})
+const apiClient = axios.create({ baseURL: string_uri || url  })
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('ekonzo_token')
   if (token) {
@@ -126,22 +127,6 @@ export function addDepot(val) {
 export function getRetraits() {
     return new Promise((resolve) => {
         apiClient.get(`${apiKey}/all_retraits`)
-            .then(res => res.data)
-            .then(resolve);
-    });
-}
-
-export function getEtatRetrait() {
-    return new Promise((resolve) => {
-        apiClient.get(`${apiKey}/etat_retraits`)
-            .then(res => res.data)
-            .then(resolve);
-    });
-}
-
-export function getDettes() {
-    return new Promise((resolve) => {
-        apiClient.get(`${apiKey}/all_dettes`)
             .then(res => res.data)
             .then(resolve);
     });

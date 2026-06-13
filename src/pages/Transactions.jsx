@@ -3,6 +3,7 @@ import Navigation from "../components/Navigation";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { addRetrait, getSingleClient } from "../service";
 import Utilisateur from "../components/Utilisateur";
+import RecuRetraitModal from "../components/RecuRetraitModal";
 import {
   ArrowBigLeft,
   LucideArrowDownUp,
@@ -14,18 +15,19 @@ import { formatCurrent } from "../utils/helpers";
 import confetti from 'canvas-confetti';
 
 
-const Transaction = () => {
+const Transactions = () => {
   
   const {id} = useParams()
   const navigate = useNavigate();
-  const [clientRes, setClientRes] = useState([])
+  const [clientRes, setClientRes] = useState(null)
   const [apercu, setApercu] = useState(null);
   const [message, setMessage] = useState("");
   const [erreur, setErreur] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showRecuModal, setShowRecuModal] = useState(false)
 
   
-  const client = clientRes[0] || null
+  const client = clientRes || null
 
    //Proprieter de retrait
 
@@ -47,16 +49,21 @@ const Transaction = () => {
 
 
   useEffect(() => {
-    getSingleClient(id).then(setClientRes)
+    if (id) {
+      getSingleClient(id).then((res) => {
+        const data = Array.isArray(res) ? res[0] : res
+        setClientRes(data)
+      })
+      
+    }
+  }, [id])
 
+  useEffect(() => {
     if (client?.id_client) {
       setRetraitValues(prev => ({...prev, clientId: client?.id_client, commission: Number(client.Mise_client)}))
-    }
-
-    if (client?.id_client) {
       setDetteValues(prev => ({...prev, clientId: client?.id_client}))
     }
-  }, [client?.id_client, client?.Mise_client, id])
+  }, [client?.id_client, client?.Mise_client])
 
 
   if (!client) {
@@ -67,9 +74,8 @@ const Transaction = () => {
     )
   }
 
-
-  const nbr_case = parseFloat(client?.Solde_client) / parseFloat(client?.Mise_client);
-  const prenom = client?.Prenom_client.toLowerCase();
+  const nbr_case = client && client.Mise_client ? parseFloat(client.Solde_client || 0) / parseFloat(client.Mise_client) : 0;
+  const prenom = client?.Prenom_client?.toLowerCase() || '';
   
 
 const code = (() => {
@@ -84,9 +90,9 @@ const code = (() => {
 
   //  Checking solde retrait
   const insufisantFond = () => {
-    if (parseInt(client?.Solde_client) <= parseInt(client?.Mise_client)) {
+    if ((parseInt(client?.Solde_client) || 0) <= (parseInt(client?.Mise_client) || 0)) {
       setErreur(
-        "Impossible d'effectuer cette opération <br/> le client manque de fond désolé !!!"
+        "Impossible d'effectuer cette opération, le client manque de fond désolé !!!"
       );
     } else {
       document.getElementById("modal_frm_retrait").showModal();
@@ -96,7 +102,7 @@ const code = (() => {
   //  Checking solde dette
   const checkingSolde = () => {
     if (
-      parseInt(client?.Solde_client) <= parseInt(client?.Mise_client * 2)
+      (parseInt(client?.Solde_client) || 0) <= ((parseInt(client?.Mise_client) || 0) * 2)
     ) {
       setErreur(
         "Impossible d'effectuer cette opération\nle client manque de fond désolé !!!"
@@ -113,7 +119,7 @@ const code = (() => {
     }
 
     let total =
-      parseInt(client?.Solde_client) - parseInt(client?.Mise_client);
+      (Number(client?.Solde_client) || 0) - (Number(client?.Mise_client) || 0);
     if (val.target.value > total) {
       setErreur(`
                 Solde insuffisant, veuillez reduirer le montant. \nLe client doit retiré que :
@@ -130,7 +136,7 @@ const code = (() => {
       val.target.value = 1;
     }
 
-    let total = parseInt(client?.Solde_client) - parseInt(client?.Mise_client * 2);
+    let total = (Number(client?.Solde_client) || 0) - ((Number(client?.Mise_client) || 0) * 2);
     if (val.target.value > total) {
       setErreur(
         `Solde du client est insuffisant, veuillez reduirer le montant.\nLe client doit prêté que :
@@ -157,9 +163,10 @@ const code = (() => {
      if (response?.success) {
       setMessage(response?.message || 'Retrait effecué')
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
+      setTimeout( async () => {
+        await setShowRecuModal(true)
+      }, 3000)
      }
-      setTimeout(async () => await navigate("/recu_retrait"), 5000);
-     
     } catch (error) {
       setErreur(`Erreur lors d'opération retrait : ${error}`)
     }
@@ -175,6 +182,11 @@ const code = (() => {
     document.getElementById("modal-apercu").showModal();
   };
 
+  const handleCloseRecuModal = () => {
+    setShowRecuModal(false)
+    navigate('/')
+  };;
+
   //submit dette
   const submitDette = async (event) => {
     event.preventDefault();
@@ -185,10 +197,12 @@ const code = (() => {
       if (response?.success) {
         setMessage(response?.message || 'Retrait prêt effecué')
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
+        setShowRecuModal(true)
       }
-      setTimeout(async () => await navigate("/recu_retrait"), 5000);
     } catch (error) {
       setErreur(`Erreur d'opération : ${error}`);
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -227,12 +241,12 @@ const code = (() => {
 
             <div className="grid justify-center">
               <h4 className="font-bold font-[consolas] text-primary stat-value">
-                {formatCurrent(client.Solde_client)}
+                {formatCurrent(client?.Solde_client)}
               </h4>
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Mise :</h4>
                 <h4 className="font-bold font-[consolas] text-primary capitalize text-xs">
-                  {formatCurrent(client.Mise_client)}
+                  {formatCurrent(client?.Mise_client)}
                 </h4>
               </div>
             </div>
@@ -347,9 +361,6 @@ const code = (() => {
         </div>
       </dialog>
       {/* Formulaire dette */}
-
-      {/* toast */}
-      
 
       <dialog id="modal_frm_dette" className="modal">
         <div className="modal-box w-2xs">
@@ -473,16 +484,18 @@ const code = (() => {
             </div>
           )}
         </div>
+        <div className="toast toast-bottom toast-center z-90"> {message && ( <div className={`alert alert-success bg-green-500"`}><span className="text-white">{message}</span></div>)} </div>
+        <div className="toast toast-bottom toast-center z-99"> {erreur && ( <div className={`alert alert-error bg-red-500"`}><span className="text-white">{erreur}</span></div>)} </div>
+
       </dialog>
 
+      <RecuRetraitModal 
+        isOpen={showRecuModal} 
+        onClose={handleCloseRecuModal}
+      />
 
-<div className="toast toast-bottom toast-center z-90"> {message && ( <div className={`alert alert-success bg-green-500"`}><span className="text-white">{message}</span></div>)} </div>
-<div className="toast toast-bottom toast-center z-99"> {erreur && ( <div className={`alert alert-error bg-red-500"`}><span className="text-white">{erreur}</span></div>)} </div>
-
-
-      <div className="h-10 max-md:h-0"></div>
     </Navigation>
   );
 };
 
-export default Transaction;
+export default Transactions;

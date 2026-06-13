@@ -33,9 +33,9 @@ function MeilleurDepot() {
             <div className="pt-2">
                 <h4 className="bg-primary py-4 text-lg font-bold text-neutral-content ps-8 flex justify-between">
                     <span >Nom Post-nom</span>
-                    <span className="px-6">Solde</span>
+                    <span className="px-6">Montant</span>
                 </h4>
-                <ul className="list bg-base-100 rounded-box shadow-md">
+                <ul className="list bg-base-100 rounded-box">
                     {
                         data.length !== 0 ?
 

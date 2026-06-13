@@ -12,15 +12,14 @@ import confetti from "canvas-confetti";
 const Info = () => {
 
   const {id} = useParams()
-  const [clientId, setClientId] = useState([])
+  const [clientData, setClientId] = useState(null)
 
   
-  const client = clientId[0] || null
+  const client = clientData || null
 
 
-  const nbr_case =
-    parseFloat(client?.Solde_client) / parseFloat(client?.Mise_client);
-  const prenom = client?.Prenom_client.toLowerCase();
+  const nbr_case = client && client.Mise_client ? parseFloat(client.Solde_client || 0) / parseFloat(client.Mise_client) : 0;
+  const prenom = client?.Prenom_client?.toLowerCase() || '';
 
   
 
@@ -62,7 +61,12 @@ const Info = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    getSingleClient(id).then(setClientId)
+    if (id) {
+      getSingleClient(id).then((res) => {
+        const data = Array.isArray(res) ? res[0] : res
+        setClientId(data)
+      })
+    }
   }, [id]);
 
   useEffect(() => {

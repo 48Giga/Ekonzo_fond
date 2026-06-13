@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import Navigation from '../components/Navigation'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { addDepot, getSingleClient} from '../service'
+import { addDepot, getDepots, getSingleClient} from '../service'
 import Utilisateur from '../components/Utilisateur'
+import RecuDepotModal from '../components/RecuDepotModal'
 import { ArrowBigLeft } from 'lucide-react'
 import { formatCurrent } from '../utils/helpers'
 import confetti from 'canvas-confetti'
@@ -14,15 +15,16 @@ const Transaction = () => {
   const navigate = useNavigate()
   const {id} = useParams()
 
-  const [clientId, setClientId] = useState([])
+  const [clientId, setClientId] = useState(null)
   const [apercu, setApercu] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState("")
   const [erreur, setErreur] = useState("")
+  const [showRecuModal, setShowRecuModal] = useState(false)
+  const [depotData, setDepotData] = useState([])
 
-  const client = clientId[0] || null
-
-
+  const client = clientId || null
+  
   const [depotValues, setDepotValues] = useState({
     idClient: client?.id_client || null,
     date: new Date().toISOString().split('T')[0],
@@ -31,12 +33,23 @@ const Transaction = () => {
 
 
 useEffect(() => {
-    getSingleClient(id).then(setClientId)
+    if (id) {
+      getSingleClient(id).then((res) => {
+        const data = Array.isArray(res) ? res[0] : res
+        setClientId(data)
+      })
+      getDepots().then(setDepotData)
+    }
+  }, [id])
+
+   const data = depotData.filter(depot => String(depot?.id_client) === String(id))
+   const depot = Array.isArray(data) ? data : [data] 
+
+  useEffect(() => {
     if (client?.id_client) {
       setDepotValues((prev) => ({ ...prev, idClient: client.id_client }))
     }
-  }, [client?.id_client, id])
-  
+  }, [client?.id_client])
 
   if (!client) {
     return (
@@ -72,6 +85,7 @@ useEffect(() => {
     await setApercu(depotValues)
     const modal = document.getElementById('modal_apercu_depot')
     modal?.showModal()
+    setErreur('')
   }
 
   const submitDepot = async () => {
@@ -82,15 +96,19 @@ useEffect(() => {
         if (response?.success) {
            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
           setMessage(response?.message)
-
-         await navigate('/recu_depot')
+          setTimeout(async () => {
+            await document.getElementById('modal_apercu_depot')?.close()
+            await setShowRecuModal(true)
+          }, 3000)
         } else {
           setErreur(response?.message || 'Erreur lors du dépôt.')
         }
       } else {
        setErreur("Le client(e) atteint son plafond de dépôt. Qu'il (elle) commence une autre carte.")
       }
-    } finally {
+
+      
+    } catch  {
       setIsLoading(false)
     }
   }
@@ -99,6 +117,11 @@ useEffect(() => {
     setApercu(null)
     document.getElementById('frm_depot')?.reset()
     document.getElementById('modal_apercu_depot')?.close()
+  }
+
+  const handleCloseRecuModal = () => {
+    setShowRecuModal(false)
+    navigate('/')
   }
 
   return (
@@ -115,8 +138,8 @@ useEffect(() => {
       }
       winget={<Utilisateur />}
     >
-      <div className="w-full place-items-center py-8 max-sm:pb-0">
-        <div className="max-w-2xl mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
+      <div className="w-full place-items-center py-6 max-sm:pb-0">
+        <div className="max-w-4xl mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
           <h1 className="font-bold text-xl text-center text-primary/60 uppercase max-sm:text-lg max-sm:py-2">
             Déposer
           </h1>
@@ -129,9 +152,11 @@ useEffect(() => {
             </span>
           </h2>
           <div key={client.id_client} className="px-1 max-sm:w-full">
+            
             <h4 className="text-start text-primary text-[14px] opacity-85 font-semibold">
               Solde du client
             </h4>
+
             <div className="grid justify-center">
               <h4 className="font-bold font-[consolas] text-primary stat-value">
                 {formatCurrent(client.Solde_client)}
@@ -143,17 +168,22 @@ useEffect(() => {
                 </h4>
               </div>
             </div>
+
             <hr className="opacity-20" />
+
           </div>
+
           <form action="" onSubmit={handleApercu} id="frm_depot">
             <div className="px-6 grid gap-2 items-center pt-2">
+
               <input
                 type="date"
                 onChange={(e) => setDepotValues({ ...depotValues, date: e.target.value })}
-                className="input lg:w-[180px]"
+                className="lg:w-30"
                 value={depotValues.date}
                 required
               />
+
               <div className="lg:join max-sm:space-y-2">
                 <input
                   type="number"
@@ -167,18 +197,53 @@ useEffect(() => {
                   Soumettre
                 </button>
               </div>
+
             </div>
           </form>
-          <hr className="opacity-20 mt-2" />
 
-          <div className="">
-            {/* <h4 className="flex justify-between text-primary-content bg-primary px-4 py-2">
-              <span>CODE</span>
-              <span>MONTANT</span>
-              <span>DATE</span>
-            </h4> */}
+        </div>
+
+
+        <div className=" max-w-sm mx-auto mt-4 collapse rounded-lg collapse-arrow bg-base-100 border border-base-300">
+          <input id="collapse-1-toggle" type="checkbox" className="peer" />
+          <div className="collapse-title font-semibold">
+            Historique des dépôts </div>
+          <div className="collapse-content">
+            <h2 className="text-center flex justify-between px-4 font-bold py-2 text-shadow-2xs text-white bg-primary">
+              <span className="font-bold text-primary-content">
+                Code
+              </span>
+              <span className="font-bold text-primary-content">
+                Montant
+              </span>
+              <span className="font-bold text-primary-content">
+                Date
+              </span>
+            </h2>
+
             <ul className="list bg-base-100 rounded-box shadow-md">
-              ...
+
+              {
+                depot.map(d => (
+                  <li
+                    key={d.id_client}
+                    className="flex lg:gap-16 justify-between  px-4 py-1 border-b-2  border-gray-200 even:bg-base-200 max-sm:px-1 max-sm:flex max-sm:justify-between"
+                  >
+
+                    <div className="text-primary uppercase font-semibold">
+                      {d.Code_client}
+                    </div>
+
+                    <div className="text-primary font-semibold">{formatCurrent(d.Montant)}</div>
+
+                    <div className="text-primary font-semibold">
+                      {d.Date_depot ? new Date(d.Date_depot).toLocaleDateString() : ''}
+                    </div>
+
+                  </li>
+                ))
+              }
+
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Nombre de case :</h4>
                 <h4 className="font-bold text-primary capitalize text-xs">
@@ -188,9 +253,12 @@ useEffect(() => {
             </ul>
           </div>
 
-
         </div>
+
       </div>
+
+      {/*Modal d'aperçu du dépôt */}
+
       <dialog id="modal_apercu_depot" className="modal">
         <div className="modal-box ">
           <h4 className="font-bold text-start text-primary">Vérification des informations</h4>
@@ -225,9 +293,8 @@ useEffect(() => {
         <form method="dialog" className="modal-backdrop">
           <button>Close</button>
         </form>
-      </dialog>
 
-      <div className="toast toast-top toast-center z-10 ">
+        <div className="toast toast-top toast-center z-999 ">
         {message && (
           <div
             className={`alert alert-success`}
@@ -247,6 +314,13 @@ useEffect(() => {
         )}
       </div>
 
+
+      </dialog>
+
+      <RecuDepotModal 
+        isOpen={showRecuModal}  
+        onClose={handleCloseRecuModal}
+      />
 
     </Navigation>
   )

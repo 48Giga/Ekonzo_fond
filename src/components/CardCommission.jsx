@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import { Download, DownloadIcon, Upload } from 'lucide-react';
 import { formatCurrent } from '../utils/helpers';
 import { useAppContext } from '../context';
-
+import { useEffect } from 'react';
 
 
 const CardCommission = () => {
@@ -12,7 +12,10 @@ const CardCommission = () => {
 
     const titre = "Commission journalière";
     
-
+     useEffect(() => {
+        commission
+        comJornaliere
+     }, [comJornaliere, commission])
 
     return (
         <Card>

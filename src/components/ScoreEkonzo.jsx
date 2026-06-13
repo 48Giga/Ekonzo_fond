@@ -20,6 +20,10 @@ const ScoreEkonzo = () => {
     const titre = "Effectif client";
     const effectifs = clients.length
 
+    useEffect(() => {
+        soldeGlobal
+    }, [soldeGlobal])
+
     return (
         <Card>
             <CorpsCard

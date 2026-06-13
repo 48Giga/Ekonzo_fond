@@ -36,7 +36,7 @@ function SuperMontant() {
             <span >Nom Post-nom</span>
             <span className="px-6">Solde</span>
         </h4>
-        <ul className="list bg-base-100 rounded-box shadow-md">
+        <ul className="list bg-base-100 rounded-box">
           {data.length === 0 ? (
             <span className="loading loading-spinner loading-lg"></span>
           ) : (

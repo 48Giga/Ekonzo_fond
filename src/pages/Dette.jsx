@@ -4,7 +4,7 @@ import { Card } from "../components/Hero";
 import Navigation from "../components/Navigation";
 import { ArrowUp, ArrowBigLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import Utilisateur from "../components/Utilisateur";
-import { getDettes, getNbrRetrait } from "../service";
+import { getRetraits, getNbrRetrait } from "../service";
 import { formatCurrent } from "../utils/helpers";
 
 
@@ -18,7 +18,7 @@ const Dette = () => {
 
   useEffect(() => {
     getNbrRetrait().then(setNombreRetrait)
-    getDettes().then(setRetrait)
+    getRetraits().then(setRetrait)
   }, [])
 
   const handleRecherche = (e) => {

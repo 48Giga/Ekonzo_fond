@@ -42,7 +42,7 @@ const ClientForm = () => {
         setTimeout(async () => {
             await document.getElementById('modal_apercu').close()
             await  document.getElementById("modal_client-recent").showModal()
-        }, 5000);
+        }, 3000);
        
 
     };
