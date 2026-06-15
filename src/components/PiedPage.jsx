@@ -34,7 +34,7 @@ function PiedPage() {
                                   clipRule="evenodd"/>
                         </svg>
                     </a>
-                    <a href="/">
+                    <a href="https://www.youtube.com/@48gigatht81" target="_back">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"

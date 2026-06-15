@@ -484,8 +484,7 @@ const code = (() => {
             </div>
           )}
         </div>
-        <div className="toast toast-bottom toast-center z-90"> {message && ( <div className={`alert alert-success bg-green-500"`}><span className="text-white">{message}</span></div>)} </div>
-        <div className="toast toast-bottom toast-center z-99"> {erreur && ( <div className={`alert alert-error bg-red-500"`}><span className="text-white">{erreur}</span></div>)} </div>
+       
 
       </dialog>
 
@@ -493,6 +492,9 @@ const code = (() => {
         isOpen={showRecuModal} 
         onClose={handleCloseRecuModal}
       />
+
+       <div className="toast toast-top toast-center z-99"> {message && ( <div className={`alert alert-success bg-green-500"`}><span className="text-white">{message}</span></div>)} </div>
+        <div className="toast toast-top toast-center z-99"> {erreur && ( <div className={`alert alert-error bg-red-500"`}><span className="text-white">{erreur}</span></div>)} </div>
 
     </Navigation>
   );

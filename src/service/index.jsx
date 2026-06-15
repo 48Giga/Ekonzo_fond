@@ -5,7 +5,7 @@ const string_uri = 'http://127.0.0.1:4500';
 const apiKey = 'ekonzo'
 
 
-const apiClient = axios.create({ baseURL: string_uri || url  })
+const apiClient = axios.create({ baseURL:string_uri || url })
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('ekonzo_token')
   if (token) {

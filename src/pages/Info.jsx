@@ -4,8 +4,9 @@ import Navigation from "../components/Navigation";
 import { useEffect, useState } from "react";
 import Utilisateur from "../components/Utilisateur";
 import { ArrowBigLeft, Edit, Trash, Trash2, User } from "lucide-react";
-import { formatCurrent } from "../utils/helpers";
+import { formatCurrent, tempCouler } from "../utils/helpers";
 import confetti from "canvas-confetti";
+
 
 
 
@@ -41,8 +42,6 @@ const Info = () => {
       navigate("/manager");
     }
   };
-
-  const created = new Date(client?.Date_creation).toLocaleDateString();
 
   const [modifierValues, setModifierValues] = useState({
     id: 0,
@@ -85,10 +84,10 @@ const Info = () => {
     }
   }, [client]);
 
-  const handleApercu = e => {
+  const handleApercu = async e => {
     e.preventDefault()
     setApercu('')
-    setApercu(modifierValues)
+    await setApercu(modifierValues)
     document.getElementById('modal_apercu').showModal()
     document.getElementById('modal_frm_edit').close()
     return;
@@ -106,16 +105,21 @@ const Info = () => {
 
     try {
       const response = await updateClient(modifierValues, client?.id_client);
+
       if(response?.success) {
         setMessage(response?.message)
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
       }
+      navigate("/manager");
       
-      setTimeout( async () => await location.reload(), 5000);
+      
     } catch (error) {
       setErreur(`Erreur de modification, ${error}`)
     }
   };
+
+  const created = new Date(client?.Date_creation).toLocaleDateString() || ''
+  
 
   return (
     <>
@@ -127,36 +131,56 @@ const Info = () => {
           >
             <ArrowBigLeft />
             <span className="flex items-center text-2xl font-bold max-sm:text-xl">
-                {code}
+                {code.toUpperCase()}
             </span>
           </Link>
         }
         winget={<Utilisateur />}
       >
         <div className="w-full place-items-center py-8 max-md:pb-2">
-          <div className="max-w-150 mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
-            <h1 className="font-bold text-lg text-center text-secondary/60  uppercase max-sm:text-lg max-sm:py-2">
+
+          <div className="max-w-2xl mx-auto p-4 bg-base-100 shadow-lg rounded-lg">
+            <h1 className="font-bold text-sm py-2 text-center text-secondary/60  uppercase max-sm:text-lg max-sm:py-2">
               Detail du client
             </h1>
-            <h2 className="text-center font-bold text-shadow-2xs text-neutral-content bg-primary">
-              {code.toUpperCase()}
-            </h2>
-            <div className="px-1  max-sm:w-full">
-              <h4 className="text-start text-secondary text-[14px] py-2 opacity-60 font-semibold">
-                Identité du client
-              </h4>
-              <hr className="w-2xs text-gray-200 text-center" />
-              <div className="flex gap-2 items-center">
-                <h4 className="opacity-60">Noms :</h4>
-                <div>
-                  <span className="font-bold uppercase text-secondary text-xs">
+            <div className="text-center bg-primary py-2 px-4">
+                  <span className="font-bold uppercase text-primary-content text-lg">
                     {`${client?.Nom_client} ${client?.Post_Nom_client} `}
                   </span>
-                  <span className="font-bold text-secondary text-xs capitalize">
+                  <span className="font-bold text-primary-content text-lg capitalize">
                     {prenom}
                   </span>
                 </div>
+            <div className="px-1  max-sm:w-full">
+                <h4 className="text-start text-secondary text-[14px] py-2 opacity-60 font-semibold">
+                  Finance du client
+                </h4>
+              <div className=" place-items-center">
+
+                <h4 className="font-bold font-[consolas] text-secondary stat-value ">
+                    {formatCurrent(client?.Solde_client)}
+                  </h4>
+
+
+
+                <div className="flex items-center gap-2">
+                  <h4 className="opacity-60">Mise :</h4>
+                  <h4 className="font-bold font-[consolas] text-secondary capitalize text-xs">
+                    {formatCurrent(client?.Mise_client)}
+                  </h4>
+                </div>
+
+{/* UCNY1bBYi76xn2fPRdpKEj9g */}
               </div>
+              <div className="flex items-center gap-2 py-2">
+                <h4 className="opacity-60">Nombre de case :</h4>
+                <h4 className="font-bold text-secondary capitalize text-xs">
+                  {nbr_case.toFixed(0)}
+                </h4>
+              </div>
+              
+              <hr className="w-2xs  text-center" />
+              
 
               <div className="flex items-center gap-2">
                 <h4 className="opacity-60">Adresse :</h4>
@@ -165,7 +189,7 @@ const Info = () => {
                 </h4>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between py-2">
                 <div className="flex items-center gap-2">
                   <h4 className="opacity-60">Créé :</h4>
                   <h4 className="font-bold text-secondary capitalize text-xs">
@@ -173,42 +197,21 @@ const Info = () => {
                   </h4>
                 </div>
                 <div className="flex items-center gap-2">
-                  <h4 className="opacity-60">Actuel :</h4>
-                  <h4 className="font-bold text-secondary capitalize text-xs">
-                    {new Date().toLocaleDateString()}
+                  <h4 className="opacity-60">Durée :</h4>
+                  <h4 className="font-bold text-secondary text-xs">
+                    { tempCouler(new Date(client?.Date_creation), new Date())}
                   </h4>
                 </div>
               </div>
 
               {/* <div className="py-2 max-sm:py-1"></div> */}
-              <h4 className="text-start text-secondary text-[14px] py-2 opacity-60 font-semibold">
-                Finance du client
-              </h4>
-              <hr className="w-2xs text-gray-200 text-center" />
-              <div className="flex items-center gap-2">
-                <h4 className="opacity-60">Nombre de case :</h4>
-                <h4 className="font-bold text-secondary capitalize text-xs">
-                  {nbr_case.toFixed(0)}
-                </h4>
-              </div>
-              <div className="flex items-center gap-2">
-                <h4 className="opacity-60">Mise :</h4>
-                <h4 className="font-bold font-[consolas] text-secondary capitalize text-xs">
-                  {formatCurrent(client?.Mise_client)}
-                </h4>
-              </div>
+              
 
-              <div className="flex items-center gap-2">
-                <h4 className="opacity-60">Solde :</h4>
-                <h4 className="font-bold font-[consolas] text-secondary capitalize text-xs">
-                  {formatCurrent(client?.Solde_client)}
-                </h4>
-              </div>
               <hr />
             </div>
-            <div className="flex justify-center gap-6 mt-2 max-md:mt-0 print:hidden">
+            <div className="flex justify-center gap-6 mt-4 max-md:mt-0 print:hidden">
               <button
-                className="btn btn-square btn-ghost text-warning hover:text-white hover:bg-warning"
+                className="btn btn-circle btn-primary hover:btn-warning "
                 onClick={() =>
                   document.getElementById("modal_frm_edit").showModal()
                 }
@@ -218,7 +221,7 @@ const Info = () => {
 
               <button
                 onClick={() => handlerDelete(client?.id_client)}
-                className="btn btn-square btn-ghost text-error hover:text-white hover:bg-error"
+                className="btn btn-outline btn-primary btn-circle  hover:btn-error"
               >
                 <Trash2/>
               </button>

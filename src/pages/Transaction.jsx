@@ -294,7 +294,18 @@ useEffect(() => {
           <button>Close</button>
         </form>
 
-        <div className="toast toast-top toast-center z-999 ">
+        
+
+
+      </dialog>
+
+      <RecuDepotModal 
+        isOpen={showRecuModal}  
+        onClose={handleCloseRecuModal}
+      />
+
+
+      <div className="toast toast-top toast-center z-99 ">
         {message && (
           <div
             className={`alert alert-success`}
@@ -304,7 +315,7 @@ useEffect(() => {
         )}
       </div>
 
-      <div className="toast toast-top toast-center z-10 ">
+      <div className="toast toast-top toast-center z-99 ">
         {erreur && (
           <div
             className={`alert alert-error`}
@@ -313,14 +324,6 @@ useEffect(() => {
           </div>
         )}
       </div>
-
-
-      </dialog>
-
-      <RecuDepotModal 
-        isOpen={showRecuModal}  
-        onClose={handleCloseRecuModal}
-      />
 
     </Navigation>
   )
