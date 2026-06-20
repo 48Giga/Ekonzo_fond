@@ -18,15 +18,8 @@ const Client = () => {
 
   const handlerSearche = (e) => {
     const value = e.target.value;
-    value.length > 2 && setSearche(value);
+    setSearche(value);
   };
-
-  const handlePageChange = page => {
-    if (page < 1 || page > clients.length || page === currentPage) {
-      return
-    }
-    setCurrentPage(page)
-  }
 
   const [nbrCarte, setNbrCarte] = useState([]);
 
@@ -35,9 +28,34 @@ const Client = () => {
     getClient().then(setClients);
   }, []);
 
+  // Filter clients based on search query
+  const filteredClients = clients.filter((d) => {
+    const fullname =
+      d.Code_client +
+      " " +
+      d.Nom_client +
+      " " +
+      d.Post_Nom_client +
+      " " +
+      d.Prenom_client;
+    return fullname.toLowerCase().includes(search.toLowerCase());
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filteredClients.length / nmbrItems));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, nmbrItems]);
+
+  const handlePageChange = page => {
+    if (page < 1 || page > totalPages || page === currentPage) {
+      return
+    }
+    setCurrentPage(page)
+  }
+
   //Pagination
   const startItems = (currentPage - 1) * nmbrItems;
-  // const endItems = startItems + nmbrItems;
 
   return (
     <div>
@@ -58,7 +76,7 @@ const Client = () => {
                   <label htmlFor="">Nombre de lignes :</label>
                   <select
                     className="select select-auto w-20"
-                    onChange={(e) => setNmbrItems(e.target.value)}
+                    onChange={(e) => setNmbrItems(Number(e.target.value))}
                   >
                     <option value="5">5</option>
                     <option value="10">10</option>
@@ -79,19 +97,10 @@ const Client = () => {
 
               {clients.length === 0 ? (
                 <span className="loading loading-spinner loading-md"></span>
-              ) : clients
-                .filter((d) => {
-                  const fullname =
-                    d.Code_client +
-                    " " +
-                    d.Nom_client +
-                    " " +
-                    d.Post_Nom_client +
-                    " " +
-                    d.Prenom_client;
-                  return fullname.toLowerCase().includes(search.toLowerCase());
-                })
-                .splice(startItems, nmbrItems)
+              ) : filteredClients.length === 0 ? (
+                <li className="px-4 py-4 text-center text-gray-500">Aucun client trouvé</li>
+              ) : filteredClients
+                .slice(startItems, startItems + nmbrItems)
                 .map((d) => {
                   const avatar =
                     d.Nom_client.charAt(0) + d.Post_Nom_client.charAt(0);
@@ -152,18 +161,24 @@ const Client = () => {
 
             <div className="mx-auto max-w-2xs bg-zinc-100 mt-4">
               <div className="flex items-center justify-between ">
-                <button className={`join-item btn ${currentPage === 1 ? 'disabled:btn' : ''}`}
+                <button
+                  className="join-item btn"
                   onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
                 >
                   <ChevronLeft className="text-primary" />
                 </button>
                 <div className="text-primary font-bold">
-                  <span>{`${startItems + 1} à ${currentPage * nmbrItems
-                    } sur ${clients.length}`}</span>
+                  <span>{`${filteredClients.length === 0 ? 0 : startItems + 1} à ${Math.min(
+                    currentPage * nmbrItems,
+                    filteredClients.length
+                  )} sur ${filteredClients.length}`}</span>
                 </div>
-                <button className={`join-item btn ${currentPage === clients.length ? 'disabled:btn' : ''}`}
+                <button
+                  className="join-item btn"
                   onClick={() => handlePageChange(currentPage + 1)}
-                  aria-label="Bouton suivent"
+                  disabled={currentPage === totalPages}
+                  aria-label="Bouton suivant"
                 >
                   <ChevronRight className="text-primary" />
                 </button>

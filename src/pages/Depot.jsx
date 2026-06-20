@@ -22,19 +22,36 @@ const Depot = () => {
 
   const handleRecherche = (e) => {
     const val = e.target.value;
-    val.length > 2 && setRecherche(val);
+    setRecherche(val);
   };
 
-  const startPage = (currentPage - 1) * itemsPerPage
-  // const endPage = startPage + itemsPerPage
+  // Filter depots based on search query
+  const filteredDepots = depots.filter((d) => {
+    const fullname =
+      d.Code_client +
+      " " +
+      d.Nom_client +
+      " " +
+      d.Post_Nom_client;
+    return fullname
+      .toLowerCase()
+      .includes(recherche.toLowerCase());
+  });
 
+  const totalPages = Math.max(1, Math.ceil(filteredDepots.length / itemsPerPage));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [recherche, itemsPerPage]);
 
   const handlePageChange = page => {
-    if (page < 1 || page > depots.length || page === currentPage) {
+    if (page < 1 || page > totalPages || page === currentPage) {
       return
     }
     setCurrentPage(page)
   }
+
+  const startPage = (currentPage - 1) * itemsPerPage
 
   return (
 
@@ -49,8 +66,8 @@ const Depot = () => {
               type="range"
               defaultValue={itemsPerPage}
               min={5}
-              max={depots.length}
-              onChange={(e) => setItemsPerPage(e.target.value)}
+              max={Math.max(5, depots.length)}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
               className="range range-sm range-primary w-full"
             />
 
@@ -63,19 +80,10 @@ const Depot = () => {
               />
             </div>
 
-            {depots
-              .filter((d) => {
-                const fullname =
-                  d.Code_client +
-                  " " +
-                  d.Nom_client +
-                  " " +
-                  d.Post_Nom_client;
-                return fullname
-                  .toLowerCase()
-                  .includes(recherche.toLowerCase());
-              })
-              .splice(startPage, itemsPerPage)
+            {filteredDepots.length === 0 ? (
+              <li className="px-4 py-4 text-center text-gray-500">Aucun dépôt trouvé</li>
+            ) : filteredDepots
+              .slice(startPage, startPage + itemsPerPage)
               .map((d, i) => {
                 const avatar =
                   d.Nom_client.charAt(0) + d.Post_Nom_client.charAt(0);
@@ -134,15 +142,23 @@ const Depot = () => {
         <div className="py-4">
           <div className="mx-auto max-w-2xs bg-zinc-100">
             <div className="flex items-center justify-between">
-              <button className="btn"
+              <button
+                className="btn"
                 onClick={() => handlePageChange(currentPage - 1)}
-              ><ChevronLeft className="text-primary font-bold" />
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="text-primary font-bold" />
               </button>
               <div className="text-primary font-semibold">
-                {`${startPage + 1} à ${currentPage * itemsPerPage} sur ${depots.length}`}
+                {`${filteredDepots.length === 0 ? 0 : startPage + 1} à ${Math.min(
+                  currentPage * itemsPerPage,
+                  filteredDepots.length
+                )} sur ${filteredDepots.length}`}
               </div>
-              <button className="btn"
+              <button
+                className="btn"
                 onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
               >
                 <ChevronRight className="font-bold text-primary" />
               </button>

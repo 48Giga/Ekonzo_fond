@@ -6,8 +6,8 @@ import Utilisateur from "../components/Utilisateur";
 import { useEffect, useState } from "react";
 import { getNbrDepot, getNbrRetrait } from "../service";
 import ClientForm from "../components/ClientForm";
-import { X, Grip, Eye  } from "lucide-react";
-import ClientRecent from "../components/ClientRecent";
+import { X, Grip, Eye } from "lucide-react";
+
 
 
 function Home() {
@@ -27,7 +27,7 @@ function Home() {
       titre={
         <Link to={"/"} className="flex gap-2 text-neutral-content items-center px-2">
           <span className="w-10">
-            <img src="favicons.png" />
+            <img src="logo.png" />
           </span>
           <span className="text-2xl text-primary-content font-bold max-sm:text-xl">Ekonzo finance</span>
         </Link>
@@ -95,15 +95,15 @@ function Home() {
     >
       <Hero />
       <Bouttons />
-      
+
 
       <div className="fab fab-flower fixed right-2 lg:right-[30%] bottom-40 print:hidden">
-        
+
         <div tabIndex={0} role="button" className="btn btn-lg btn-circle btn-primary">
           <Grip />
         </div>
         <button className="fab-main-action btn btn-circle btn-lg">
-          <X /> 
+          <X />
         </button>
 
         <ClientForm />

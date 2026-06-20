@@ -1,5 +1,5 @@
 import React from "react";
-import icon from '/favicons.png?url'
+import icon from '/logo.png?url'
 
 function PiedPage() {
     return (
@@ -7,7 +7,7 @@ function PiedPage() {
             <footer
                 className="footer sm:footer-horizontal bg-primary text-neutral-content items-center p-4 print:hidden">
                 <aside className="grid-flow-col items-center">
-                    <img src={icon} className="size-4"/>
+                    <img src={icon} className="size-4" />
                     <p className="text-center">
                         Copyright © {new Date().getFullYear()} - All right reserved by
                         bureautique 48Giga
@@ -28,10 +28,10 @@ function PiedPage() {
                     </a>
                     <a href="https://maps.app.goo.gl/8mjLoLp1tLrzVYxv8" target="_back">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                             className="size-6">
+                            className="size-6">
                             <path fillRule="evenodd"
-                                  d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-                                  clipRule="evenodd"/>
+                                d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                                clipRule="evenodd" />
                         </svg>
                     </a>
                     <a href="https://www.youtube.com/@48gigatht81" target="_back">

@@ -26,8 +26,27 @@ const Retrait = () => {
     setRecherche(val);
   };
 
+  // Filter retraits based on search query
+  const filteredRetraits = retraits.filter((d) => {
+    const fullname =
+      d.Code_client +
+      " " +
+      d.Nom_client +
+      " " +
+      d.Post_Nom_client;
+    return fullname
+      .toLowerCase()
+      .includes(recherche.toLowerCase());
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filteredRetraits.length / nbrItems));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [recherche, nbrItems]);
+
   const handlePageChange = page => {
-    if (page < 1 || page > retraits.length || page === currentPage) {
+    if (page < 1 || page > totalPages || page === currentPage) {
       return
     }
     setCurrentPage(page)
@@ -48,9 +67,9 @@ const Retrait = () => {
               <input
                 type="range"
                 min={3}
-                max={retraits.length}
+                max={Math.max(3, retraits.length)}
                 defaultValue={nbrItems}
-                onChange={(e) => setNbrItems(e.target.value)}
+                onChange={(e) => setNbrItems(Number(e.target.value))}
                 className="range range-sm range-primary w-full"
               />
 
@@ -63,19 +82,10 @@ const Retrait = () => {
                 />
               </div>
 
-              {retraits
-                .filter((d) => {
-                  const fullname =
-                    d.Code_client +
-                    " " +
-                    d.Nom_client +
-                    " " +
-                    d.Post_Nom_client;
-                  return fullname
-                    .toLowerCase()
-                    .includes(recherche.toLowerCase());
-                })
-                .splice(startItem, nbrItems)
+              {filteredRetraits.length === 0 ? (
+                <li className="px-4 py-4 text-center text-gray-500">Aucun retrait trouvé</li>
+              ) : filteredRetraits
+                .slice(startItem, startItem + nbrItems)
                 .map((d, i) => {
                   const avatar =
                     d.Nom_client.charAt(0) + d.Post_Nom_client.charAt(0);
@@ -145,17 +155,20 @@ const Retrait = () => {
                 <button
                   className="btn"
                   onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
                 >
                   <ChevronLeft className="text-primary font-bold"/>
                 </button>
                 <div className="text-primary font-semibold">
-                  {`${startItem + 1} à ${currentPage * nbrItems} sur ${
-                    retraits.length
-                  }`}
+                  {`${filteredRetraits.length === 0 ? 0 : startItem + 1} à ${Math.min(
+                    currentPage * nbrItems,
+                    filteredRetraits.length
+                  )} sur ${filteredRetraits.length}`}
                 </div>
                 <button
                   className="btn"
                   onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
                 >
                   <ChevronRight className="text-primary"/>
                 </button>
